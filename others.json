@@ -1,0 +1,58 @@
+{
+  "extensions": [
+    {
+      "id": "dlvhdr/gh-dash",
+      "description": "Dashboard TUI para issues/PRs no GitHub"
+    },
+    {
+      "id": "github/gh-copilot",
+      "description": "Copilot via gh (quando disponível)"
+    }
+  ],
+  "plugins": [
+    {
+      "key": "web_fetch",
+      "default": false,
+      "description": "Permitir buscas/contexto web (se suportado pelo CLI)."
+    },
+    {
+      "key": "image_caption",
+      "default": false,
+      "description": "Caption de imagem (se suportado)."
+    }
+  ],
+  "interactions": [
+    {
+      "id": "template_rx",
+      "type": "template",
+      "label": "Template: RX (condutas completas)",
+      "template_key": "rx"
+    },
+    {
+      "id": "prompt_brief",
+      "type": "prompt",
+      "label": "Brief 5 bullets",
+      "prompt": "Resuma o tópico a seguir em 5 bullets conclusivos."
+    },
+    {
+      "id": "auto_rx_brief",
+      "type": "automation",
+      "label": "Automation: rx_brief.yaml",
+      "file": "automations/rx_brief.yaml"
+    }
+  ],
+  "automations": [
+    {
+      "file": "automations/rx_brief.yaml",
+      "description": "Gera condutas estruturadas com template RX."
+    },
+    {
+      "file": "automations/sgarbossa_check.yaml",
+      "description": "Explica Sgarbossa com bullets práticos."
+    },
+    {
+      "file": "automations/batch_from_file.sh",
+      "description": "Processa prompts em lote a partir de arquivo."
+    }
+  ]
+}
