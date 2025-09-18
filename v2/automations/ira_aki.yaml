@@ -1,0 +1,16 @@
+name: ira_aki
+model: gemini-2.5-pro
+temperature: 0.1
+prompt: |
+  Elabore abordagem de Injúria Renal Aguda (IRA/AKI) na UPA:
+  1) Classificação (KDIGO) e clínica-prática para diferenciar pré-renal vs ATN
+  2) Avaliação hemodinâmica e de volemia (exemplos práticos)
+  3) Provas de resposta a volume com segurança (quando testar/evitar)
+  4) Ajustes de medicação nefrotóxica
+  5) Hipercalemia/Hiponatremia associadas (condutas rápidas)
+  6) Indicações para diálise/transferência
+  7) Tabela de doses ajustadas por TFG para drogas comuns em UPA (se possível)
+  8) Checklist operacional
+extra_args:
+  - --max-output-tokens
+  - "3072"

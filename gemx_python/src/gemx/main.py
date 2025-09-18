@@ -5,6 +5,7 @@ from typing_extensions import Annotated
 
 from . import config
 from . import others
+from . import core
 
 # --- App Setup ---
 app = typer.Typer(help="O sucessor do gemx.sh, em Python.")
@@ -13,16 +14,17 @@ console = Console()
 profile_app = typer.Typer(name="profile", help="Gerencia os perfis de configuração.")
 app.add_typer(profile_app)
 
-# --- Helper Functions ---
-def find_gemini_binary():
-    """Encontra o binário 'gemini' ou 'gmini' no PATH."""
-    for binary in ["gemini", "gmini"]:
-        try:
-            subprocess.run(["which", binary], check=True, capture_output=True)
-            return binary
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            continue
-    return None
+# --- Automation Constants ---
+META_PROMPT_TEMPLATE = """
+Como um especialista em automação do ecossistema Apple, sua tarefa é gerar um script para cumprir o objetivo do usuário.
+O objetivo do usuário é: '{user_prompt}'.
+
+Com base neste objetivo, gere um único, completo e executável AppleScript.
+- O script deve ser robusto e incluir tratamento de erros quando apropriado.
+- Não inclua nenhuma explicação, comentários ou formatação markdown.
+- Sua resposta inteira deve ser APENAS o código AppleScript bruto.
+- Exemplo para 'abrir notas': `tell application "Notes" to activate`
+"""
 
 # --- CLI Commands ---
 @app.command()
@@ -38,7 +40,7 @@ def setup():
         console.print("[red]✗[/red] Dependência 'jq' não encontrada. Por favor, instale-a.")
 
     # 2. Check gemini binary
-    gemini_bin = find_gemini_binary()
+    gemini_bin = core.find_gemini_binary()
     if gemini_bin:
         console.print(f"[green]✓[/green] Binário do Gemini encontrado: [bold]{gemini_bin}[/bold]")
     else:
@@ -55,34 +57,46 @@ def setup():
 @app.command()
 def gen(prompt: Annotated[str, typer.Argument(help="O prompt para o modelo.")]):
     """Gera uma resposta a partir de um prompt usando as configurações atuais."""
-    gemini_bin = find_gemini_binary()
+    core.run_generation(prompt)
+
+@app.command(name="gen-auto")
+def gen_auto(prompt: Annotated[str, typer.Option("--prompt", help="A descrição da automação a ser gerada.")]):
+    """Gera um comando de automação para macOS para ser copiado e colado."""
+    console.print(f"[bold cyan]Gerando comando de automação para o prompt:[/bold cyan] {prompt}")
+    
+    # 1. Encontrar o binário do Gemini
+    gemini_bin = core.find_gemini_binary()
     if not gemini_bin:
         console.print("[red]Erro:[/red] Binário do Gemini não encontrado.")
         raise typer.Exit(1)
 
-    args = [
+    # 2. Criar o meta-prompt
+    meta_prompt = META_PROMPT_TEMPLATE.format(user_prompt=prompt)
+    
+    # 3. Construir o comando final para o usuário
+    # Usamos shlex.quote para garantir que o prompt seja passado como uma única string segura para o shell
+    import shlex
+    gemini_args = [
         gemini_bin,
         "generate",
         "--model", config.STATE.model,
         "--temperature", str(config.STATE.temperature),
-        "--prompt", prompt,
     ]
-    if config.STATE.system:
-        args.extend(["--system", config.STATE.system])
-
-    console.print(f"[cyan]Executando com o modelo [bold]{config.STATE.model}[/bold] (temp: {config.STATE.temperature})...[/cyan]")
+    gemini_cmd_part = " ".join(map(shlex.quote, gemini_args))
     
-    try:
-        # Usamos passthrough para que a saída (incluindo streaming) vá direto para o terminal do usuário
-        subprocess.run(args)
-    except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        console.print(f"[red]Falha ao executar o comando do Gemini:[/red]\n{e}")
-        raise typer.Exit(1)
+    final_command = f"echo {shlex.quote(meta_prompt)} | {gemini_cmd_part} | osascript -e -"
+    
+    console.print("\n[bold green]✓ Comando gerado com sucesso![/bold green]")
+    console.print("\n[yellow]AVISO:[/yellow] Devido a limitações do ambiente de script, a execução direta falhou.")
+    console.print("Copie e cole o seguinte comando completo no seu terminal macOS para executar a automação:")
+    console.print("\n---")
+    console.print(f"[bold]{final_command}[/bold]")
+    console.print("---")
 
 @app.command(name="models")
 def list_models():
     """Lista os modelos disponíveis através do binário do Gemini."""
-    gemini_bin = find_gemini_binary()
+    gemini_bin = core.find_gemini_binary()
     if not gemini_bin:
         console.print("[red]Erro:[/red] Binário do Gemini não encontrado.")
         raise typer.Exit(1)

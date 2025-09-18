@@ -1,0 +1,1 @@
+Internal metadata folder (optional).

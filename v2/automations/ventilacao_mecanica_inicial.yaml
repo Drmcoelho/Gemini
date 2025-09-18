@@ -1,0 +1,15 @@
+name: ventilacao_mecanica_inicial
+model: gemini-2.5-pro
+temperature: 0.15
+prompt: |
+  Gere um PROTOCOLO DE INÍCIO DE VENTILAÇÃO MECÂNICA INVASIVA em adulto:
+  • Indicações, preparo rápido, checklist de intubação, sedoanalgesia inicial.
+  • Parametrização inicial (VC 6–8 mL/kg peso predito, FR, PEEP/FiO2 em tabela resumida tipo ARDS, fluxo, rampa, I:E).
+  • Estratégias por fenótipo (DPOC/asma: tempo expiratório; SDRA: VC 4–6, driving pressure < 15, platô < 30; hipoxemia refratária).
+  • Monitorização e metas (SpO2, complacência, platô, driving, Vd/Vt se disponível).
+  • Sedoanalgesia e bloqueio: se citar fármacos, incluir os CAMPOS OBRIGATÓRIOS (Apresentação, Diluição, Posologia, Administração, Concentração final, Contraindicações, Interações, Efeitos colaterais, Outras).
+  • Alarmes e rotina de reavaliação (gasometria, ajustes iterativos).
+  • Se faltar dados, faça 3 perguntas objetivas.
+extra_args:
+  - --max-output-tokens
+  - "2400"

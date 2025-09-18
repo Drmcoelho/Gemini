@@ -8,7 +8,8 @@ from rich.console import Console
 from rich.prompt import Prompt
 from rich.table import Table
 
-from . import config # Para acessar o estado (ex: para templates)
+from . import config
+from . import core
 
 # O path para others.json pode ser configurável no futuro
 OTHERS_PATH = Path(__file__).parent.parent.parent.parent / "others.json"
@@ -19,6 +20,8 @@ def _run_shell_command(command: str):
     """Helper para executar um comando shell e imprimir a saída."""
     console.print(f"[cyan]Executando comando shell:[/cyan] [bold]{command}[/bold]")
     try:
+        # Usamos shell=True para interpretar comandos como `git status` corretamente
+        # Em um app real, seria mais seguro passar os argumentos como uma lista
         subprocess.run(command, shell=True, check=True)
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
         console.print(f"[red]Erro ao executar o comando:[/red] {e}")
@@ -27,17 +30,50 @@ def _execute_action(action: Dict[str, Any]):
     """Executa uma ação específica do catálogo."""
     action_type = action.get("type")
     
-    # TODO: Portar a lógica de execução de `gemx.sh` para cá
     if action_type == "prompt":
-        # No futuro, isso chamaria a função `gen`
-        console.print(f"[bold]Prompt:[/bold] {action.get('prompt')}")
-        console.print("[yellow]Execução de prompt ainda não implementada.[/yellow]")
+        prompt_text = action.get('prompt', '')
+        # Lida com o caso especial do git diff
+        if "$(git diff --staged)" in prompt_text:
+            try:
+                staged_diff = subprocess.check_output(["git", "diff", "--staged"]).decode()
+                if not staged_diff:
+                    console.print("[yellow]Aviso:[/yellow] Nenhuma mudança no stage. O prompt pode ficar vazio.")
+                prompt_text = prompt_text.replace("$(git diff --staged)", staged_diff)
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                console.print("[red]Erro:[/red] Falha ao executar 'git diff --staged'.")
+                return
+        core.run_generation(prompt_text)
+
     elif action_type == "shell":
         _run_shell_command(action.get("command", ""))
-    elif action_type == "automation":
-        console.print(f"[yellow]Execução de automação ('{action.get('file')}') ainda não implementada.[/yellow]")
+
     elif action_type == "template":
-        console.print(f"[yellow]Execução de template ('{action.get('template_key')}') ainda não implementada.[/yellow]")
+        template_key = action.get('template_key')
+        if not template_key:
+            console.print("[red]Erro:[/red] Ação de template não tem 'template_key'.")
+            return
+        
+        templates = config.get_config_file_content().get("templates", {})
+        prompt_text = templates.get(template_key)
+        
+        if not prompt_text:
+            console.print(f"[red]Erro:[/red] Template '[bold]{template_key}[/bold]' não encontrado no config.json.")
+            return
+            
+        core.run_generation(prompt_text)
+
+    elif action_type == "automation":
+        automation_file = action.get('file')
+        if not automation_file:
+            console.print("[red]Erro:[/red] Ação de automação não tem 'file'.")
+            return
+        
+        if automation_file.endswith(".sh"):
+            # O caminho para a automação precisa ser relativo ao root do projeto
+            automation_path = Path(__file__).parent.parent.parent.parent / automation_file
+            _run_shell_command(str(automation_path))
+        else:
+            console.print(f"[yellow]Execução de automações do tipo '{automation_file.split('.')[-1]}' ainda não implementada.[/yellow]")
     else:
         console.print(f"[red]Tipo de ação desconhecido:[/red] {action_type}")
 
