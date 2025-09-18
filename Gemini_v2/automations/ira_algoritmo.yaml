@@ -1,0 +1,13 @@
+name: ira_algoritmo
+model: gemini-2.5-pro
+temperature: 0.15
+prompt: |
+  Produza um ALGORITMO de IRA (Insuficiência Renal Aguda) com diferenciação Prerrenal vs ATN vs Pós-renal:
+  • Sinais clínicos, história, parâmetros laboratoriais (FeNa, FeUrea, urinálise) com cutoffs usuais e limitações.
+  • Condutas imediatas por fenótipo, metas e quando internar em UTI.
+  • Ajustes de fármacos por função renal (tabela curta – exemplos comuns).
+  • Se citar fármacos, inclua os CAMPOS OBRIGATÓRIOS (Apresentação, Diluição, Posologia, Administração, Concentração final, Contraindicações, Interações, Efeitos colaterais, Outras).
+  • Se faltar dados, faça 3 perguntas objetivas.
+extra_args:
+  - --max-output-tokens
+  - "2000"

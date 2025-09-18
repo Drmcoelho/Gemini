@@ -1,0 +1,21 @@
+name: sepse_bundle
+model: gemini-2.5-pro
+temperature: 0.1
+prompt: |
+  Você é um médico intensivista na UPA com recursos limitados. Gere um BUNDLE DE SEPSE inicial, estruturado em:
+  1) Triagem e critérios (qSOFA, SRIS/Sepsis-3 práticos)
+  2) ABCDE imediato (com foco em PERFUSÃO e RESPIRAÇÃO)
+  3) Coleta (hemoculturas antes do antibiótico quando possível, *sem atrasar*)
+  4) Antibiótico empírico: escolha por foco provável e gravidade
+     • Para cada fármaco, entregue os CAMPOS OBRIGATÓRIOS: Apresentação; Diluição; Posologia; Administração (mL/h quando pertinente); Concentração final; Contraindicações; Interações importantes; Efeitos colaterais; Outras informações (ajustes por TFG/Idoso/Obeso)
+  5) Ressuscitação volêmica (alvos clínicos; reavaliação; quando parar)
+  6) Vasopressores (NORADRENALINA em BIC): inclua cálculo prático (mcg/kg/min → mL/h), meta-PAM, titulação, monitorização mínima
+  7) Lactato/GA: objetivos e reavaliação
+  8) Critérios de encaminhamento vs permanência
+  9) Checklist final
+
+  Contexto do paciente (se fornecido abaixo) deve moldar doses e escolhas.
+  Se faltarem dados críticos, pergunte até 3 questões objetivas ANTES de gerar conduta.
+extra_args:
+  - --max-output-tokens
+  - "3072"

@@ -1,0 +1,17 @@
+name: ventilacao_mecanica
+model: gemini-2.5-pro
+temperature: 0.1
+prompt: |
+  Protocolo prático de Ventilação Mecânica Inicial (UPA/ITU):
+  1) Quando intubar (hipoxemia, fadiga, rebaixamento, aspiração, etc.)
+  2) Escolha do modo (VCV/PCV/PSV) com rational prático
+  3) Parâmetros iniciais por fenótipo (SDRA, DPOC, Asma, Neurológico, Pós-parada)
+     • VT por peso predito (PBW), FR, PEEP, FiO2, platô/drive
+  4) Sedoanalgesia e bloqueio (quando evitar; monitorização)
+     • Para cada droga: Apresentação; Diluição; Posologia; Administração (mL/h); Concentração final; Contraindicações; Interações; Efeitos colaterais; Outras infos
+  5) Estratégias de desmame e critérios SBT
+  6) Alarmes e troubleshooting
+  7) Checklist resumido (1 página)
+extra_args:
+  - --max-output-tokens
+  - "4096"
