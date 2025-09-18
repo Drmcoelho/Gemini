@@ -28,8 +28,8 @@ now_iso_utc() { date -u +"%Y-%m-%dT%H:%M:%SZ"; }
 ts_compact()   { date -u +"%Y%m%dT%H%M%SZ"; }
 is_tty() { [ -t 1 ]; }
 color() { local c="$1"; shift; if is_tty; then printf "\033[%sm%s\033[0m" "$c" "$*"; else printf "%s" "$*"; fi; }
-info() { echo "$(color 36 "[INFO]") $*"; }
-warn() { echo "$(color 33 "[WARN]") $*"; }
+info() { [ "${GEMX_QUIET:-0}" = "1" ] && return 0; echo "$(color 36 "[INFO]") $*" 1>&2; }
+warn() { echo "$(color 33 "[WARN]") $*" 1>&2; }
 err()  { echo "$(color 31 "[ERR]")  $*" 1>&2; }
 need() { command -v "$1" >/dev/null 2>&1; }
 confirm() { printf "%s [y/N]: " "$1"; read -r a || return 1; a="$(lower "$a")"; [ "$a" = "y" ] || [ "$a" = "yes" ]; }
@@ -193,7 +193,7 @@ ensure_bin(){
 }
 check_deps(){
   need jq || { err "Dependência obrigatória ausente: jq"; return 1; }
-  for opt in yq fzf gh; do need "$opt" || warn "Opcional não encontrado: $opt"; done
+  for opt in yq fzf gh; do need "$opt" || { [ "${GEMX_QUIET:-0}" = "1" ] || warn "Opcional não encontrado: $opt"; }; done
   return 0
 }
 init_cfg(){
@@ -265,10 +265,10 @@ gem_exec() {
 
 # One-shot generate (com sistema/temperatura/modelo/imagens)
 gem_gen() {
-  # $1 prompt, $2 model, $3 temp, $4 system, imagens extras em "$@"
+  # $1 prompt, $2 model, $3 temp (ignorado), $4 system, imagens extras em "$@" (sem suporte no CLI atual)
   local prompt="$1"; shift
   local model="${1:-$(get_cfg '.model')}"; shift || true
-  local temp="${1:-$(get_cfg '.temperature')}"; shift || true
+  local _temp_unused="${1:-$(get_cfg '.temperature')}"; shift || true
   local system="${1:-$(get_cfg '.system')}"; shift || true
 
   # Força modelo, se solicitado (padrão: gemini-2.5-pro)
@@ -276,13 +276,16 @@ gem_gen() {
     model="$GEMX_FORCE_MODEL"
   fi
 
-  local args=( generate "$prompt" --model "$model" )
-  [ -n "$system" ] && [ "$system" != "null" ] && [ "$system" != "" ] && args+=( --system "$system" )
+  # O Gemini CLI atual aceita prompt posicional e -m para modelo; não há --system estável,
+  # então prefixamos o prompt com uma linha de sistema se houver.
+  if [ -n "$system" ] && [ "$system" != "null" ]; then
+    prompt="System: $system
 
-  while [ $# -gt 0 ]; do
-    if [ -f "$1" ]; then args+=( --image "$1" ); shift; else break; fi
-  done
-  [ $# -gt 0 ] && args+=( "$@" )
+$prompt"
+  fi
+
+  local args=( -m "$model" "$prompt" )
+  # Imagens extras não são suportadas diretamente; ignoramos "$@" aqui por enquanto.
   gem_exec "${args[@]}"
 }
 
@@ -299,9 +302,11 @@ gem_chat_loop() {
     printf "\nVocê> "
     local p; read -r p || break
     [ -z "$p" ] && continue
-    # Tenta 'chat'; fallback para 'generate' se não existir
-    gem_exec chat --model "$model" --temperature "$temp" ${system:+--system "$system"} --prompt "$p" 2>/dev/null \
-      || gem_exec generate --model "$model" --temperature "$temp" ${system:+--system "$system"} --prompt "$p"
+    local full="$p"
+    if [ -n "$system" ] && [ "$system" != "null" ]; then
+      full="System: $system\n\n$full"
+    fi
+    gem_exec -m "$model" "$full"
   done
 }
 
@@ -368,11 +373,25 @@ auto_run() {
     "$spec" "$@"
     return $?
   fi
-  if echo "$spec" | grep -E '\.(yaml|yml)$' >/dev/null 2>&1; then
+  # Detecta extensão de forma robusta
+  local ext="${spec##*.}"
+  if [ "$ext" = "yaml" ] || [ "$ext" = "yml" ]; then
     if need yq; then
-      local model temp prompt; model="$(yq -r '.model // "gemini-2.5-pro"' "$spec")"
+      local model temp prompt extra_p; model="$(yq -r '.model // "gemini-2.5-pro"' "$spec")"
       temp="$(yq -r '.temperature // 0.2' "$spec")"
       prompt="$(yq -r '.prompt' "$spec")"
+      extra_p="${GEMX_PROMPT:-}"
+      if [ -n "$extra_p" ]; then
+        if printf "%s" "$prompt" | grep -q '{{INPUT}}'; then
+          prompt="$(printf "%s" "$prompt" | sed "s/{{INPUT}}/$(printf '%s' "$extra_p" | sed 's:[\\&/:]:\\&:g')/")"
+        else
+          prompt="${prompt}
+
+---
+User input:
+${extra_p}"
+        fi
+      fi
       [ -z "$prompt" ] && { err "prompt vazio"; return 1; }
       gem_gen "$prompt" "$model" "$temp" "" "$@"
     else
@@ -380,16 +399,29 @@ auto_run() {
     fi
     return
   fi
-  if echo "$spec" | grep -E '\.json$' >/dev/null 2>&1; then
-    local model temp prompt
+  if [ "$ext" = "json" ]; then
+    local model temp prompt extra_p
     model="$(jq -r '.model // "gemini-2.5-pro"' "$spec")"
     temp="$(jq -r '.temperature // 0.2' "$spec")"
     prompt="$(jq -r '.prompt' "$spec")"
+    extra_p="${GEMX_PROMPT:-}"
+    if [ -n "$extra_p" ]; then
+      if printf "%s" "$prompt" | grep -q '{{INPUT}}'; then
+        prompt="$(printf "%s" "$prompt" | sed "s/{{INPUT}}/$(printf '%s' "$extra_p" | sed 's:[\\&/:]:\\&:g')/")"
+      else
+        prompt="${prompt}
+
+---
+User input:
+${extra_p}"
+      fi
+    fi
     [ -z "$prompt" ] && { err "prompt vazio"; return 1; }
     gem_gen "$prompt" "$model" "$temp" "" "$@"
     return
   fi
   err "Formato não suportado: $spec"
+  return 1
 }
 
 # ---------- Others.json (extensões/plugins/integrações/automations) ----------

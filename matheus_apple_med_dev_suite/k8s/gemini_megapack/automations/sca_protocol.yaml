@@ -1,0 +1,88 @@
+name: sca_protocol_v5
+model: gemini-2.5-pro
+temperature: 0.1
+prompt_instructions:
+  - "Você é um cardiologista sênior, autor de diretrizes clínicas e educador. Sua tarefa é gerar um documento de referência de nível enciclopédico sobre o manejo da Síndrome Coronariana Aguda (SCA)."
+  - "A seguir, uma estrutura de prompt em YAML. Você deve processar cada seção, subseção e ponto para construir uma resposta coesa, detalhada e clinicamente precisa."
+  - "O modo interativo é mandatório. Se o contexto do usuário for ausente, você deve fazer as perguntas definidas na seção 'interactive_questions' e aguardar as respostas antes de prosseguir."
+
+prompt_structure:
+  role: "Cardiologista Sênior e Autor de Diretrizes."
+  interactive_mode:
+    instruction: "SE o usuário NÃO fornecer um contexto clínico detalhado, você DEVE iniciar a interação fazendo as seguintes 10 perguntas-chave. NÃO gere o protocolo antes de obter essas respostas. SE o usuário fornecer o contexto, use-o para gerar um plano de ação ultra-específico para o caso."
+    questions:
+      - "1. Identificação: Idade, sexo, peso?"
+      - "2. Apresentação Clínica: Descrição detalhada da dor (início, qualidade, irradiação, duração, fatores de melhora/piora)? Sintomas associados (dispneia, sudorese, síncope, náuseas)?"
+      - "3. Histórico Cardiovascular: Fatores de risco (HAS, DM, DLP, tabagismo, história familiar)? DAC prévia, ICP, CRM? FEVE conhecida?"
+      - "4. Medicamentos em Uso: Usa AAS, clopidogrel, ticagrelor, prasugrel, ou algum anticoagulante (NOACs, Varfarina)?"
+      - "5. Exame Físico Detalhado: PA, FC, FR, SpO2, temperatura? Presença de B3, B4, novo sopro de regurgitação mitral? Estertores pulmonares (e até que altura)? Edema de membros inferiores? Pulsos simétricos?"
+      - "6. ECG Inicial (Análise Crítica): Ritmo? Descreva TODAS as alterações de ST-T, incluindo derivações, magnitude do supra/infra (em mm), e presença de alterações recíprocas. Há bloqueio de ramo novo? Sinais de IAM de VD ou posterior?"
+      - "7. Biomarcadores Cardíacos: Valor da primeira Troponina ultrassensível (com a unidade e o valor de referência do laboratório)? Se disponível, qual o valor da segunda amostra e o delta-t?"
+      - "8. Função Renal e Hepática: Creatinina sérica mais recente (para cálculo do ClCr)? Histórico de doença renal ou hepática?"
+      - "9. Risco de Sangramento: Histórico de sangramento gastrointestinal, AVC hemorrágico, cirurgia recente, plaquetopenia?"
+      - "10. Contexto Hospitalar: O hospital tem capacidade de ICP 24/7? Qual o tempo estimado porta-balão? A fibrinólise é uma opção disponível?"
+
+  protocol_sections:
+    - section: "1. FISIOPATOLOGIA E DEFINIÇÕES (Contexto Educacional)"
+      points:
+        - "Explique a fisiopatologia da SCA, começando com a instabilidade e ruptura da placa aterosclerótica."
+        - "Detalhe o processo de ativação plaquetária, cascata de coagulação e formação do trombo intracoronariano."
+        - "Crie uma tabela que diferencie o espectro da SCA: Angina Instável, IAM sem Supra de ST (IAMSSST) e IAM com Supra de ST (IAMCSST), com base na clínica, ECG e biomarcadores."
+
+    - section: "2. ATENDIMENTO HIPERAGUDO E DIAGNÓSTICO (SALA DE EMERGÊNCIA)"
+      points:
+        - "Descreva o fluxo 'porta-ECG' em menos de 10 minutos, detalhando a logística e a equipe envolvida."
+        - "Forneça uma tabela de correlação Eletrocardiográfica-Anatômica (ex: V1-V4 -> Parede Anterior -> Artéria Descendente Anterior)."
+        - "Liste e explique os critérios de ECG para IAMCSST, incluindo os equivalentes de STEMI: Bloco de Ramo Esquerdo novo com critérios de Sgarbossa, e o padrão de De Winter."
+        - "Explique em detalhes o algoritmo de Rule-in/Rule-out para IAM usando troponina ultrassensível em 0h/1h ou 0h/2h, citando os valores de corte validados em estudos recentes."
+
+    - section: "3. ESTRATIFICAÇÃO DE RISCO MULTIDIMENSIONAL"
+      points:
+        - "Score HEART: Detalhe cada um dos 5 componentes (History, ECG, Age, Risk Factors, Troponin) e como pontuá-los. Crie uma tabela com a conduta recomendada para cada faixa de risco (0-3, 4-6, >=7)."
+        - "Score GRACE 2.0: Liste e explique todos os 8 componentes. Enfatize seu valor prognóstico para mortalidade e como um score > 140 indica a necessidade de uma estratégia invasiva precoce."
+        - "Score TIMI para SCASSST: Liste os 7 componentes e explique seu uso na predição de eventos isquêmicos em 14 dias."
+        - "Score de Sangramento CRUSADE: Liste seus principais componentes e explique a importância de balancear o risco isquêmico (GRACE/TIMI) com o risco hemorrágico antes de definir a potência da terapia antitrombótica."
+
+    - section: "4. FARMACOTERAPIA AVANÇADA E BASEADA EM EVIDÊNCIAS"
+      instruction: "Para CADA fármaco listado abaixo, forneça uma análise enciclopédica contendo os seguintes campos: Racional Clínico e Evidências (citando o principal estudo), Mecanismo de Ação Detalhado, Apresentação, Posologia (com tabela de ajuste para Insuficiência Renal por ClCr), Diluição e Administração (se EV), Contraindicações (tabela de absolutas e relativas), Monitoramento, Interações Perigosas e Antídoto/Manejo de Toxicidade."
+      drug_groups:
+        - group: "Dupla Antiagregação Plaquetária (DAPT)"
+          drugs: ["AAS", "Clopidogrel", "Ticagrelor", "Prasugrel"]
+          notes: "Crie um fluxograma de decisão para a escolha do inibidor de P2Y12, considerando o cenário (SCACSST vs. SCASSST), risco de sangramento e se a anatomia coronária é conhecida."
+        - group: "Inibidores da Glicoproteína IIb/IIIa"
+          drugs: ["Tirofiban", "Abciximab"]
+          notes: "Explique seu papel como terapia de resgate ('bail-out') em situações de alta carga trombótica durante a ICP."
+        - group: "Anticoagulação"
+          drugs: ["Heparina Não Fracionada (HNF)", "Enoxaparina (HBPM)", "Fondaparinux", "Bivalirudina"]
+          notes: "Detalhe os cenários de uso para cada um, especialmente na estratégia invasiva vs. conservadora."
+        - group: "Terapia Adjuvante"
+          drugs: ["Beta-bloqueadores", "Estatinas de alta potência", "Nitratos", "Morfina", "IECA/BRA"]
+          notes: "Discuta as controvérsias e o timing correto para iniciar cada uma dessas medicações."
+
+    - section: "5. ALGORITMOS DE REPERFUSÃO (FLUXOGRAMAS DETALHADOS)"
+      subsections:
+        - title: "Via do IAMCSST"
+          points:
+            - "Crie um fluxograma de decisão detalhado: ICP Primária vs. Fibrinólise, incluindo os cálculos de tempo (primeiro contato médico, tempo de transferência, porta-balão, porta-agulha)."
+            - "Forneça um checklist exaustivo em formato de tabela para as contraindicações absolutas e relativas da fibrinólise."
+            - "Descreva a Estratégia Fármaco-Invasiva: o que fazer após a fibrinólise, critérios de reperfusão (clínicos e ECG), e o timing da transferência para um centro com ICP."
+        - title: "Via do IAMSSST / Angina Instável"
+          points:
+            - "Crie um fluxograma de decisão para o timing da estratégia invasiva, baseado nos escores de risco e na presença de critérios de muito alto risco."
+            - "Detalhe os critérios para cada timing: Imediato (<2h), Precoce (<24h), e Eletivo (>24h)."
+
+    - section: "6. MANEJO DE POPULAÇÕES ESPECIAIS"
+      points:
+        - "Idosos (>75 anos): Detalhe os ajustes de dose, o maior risco de sangramento e as apresentações atípicas da SCA."
+        - "Doentes Renais Crônicos: Forneça uma tabela específica com os ajustes de dose para todos os antiplaquetários e anticoagulantes com base no Clearance de Creatinina."
+        - "Diabéticos: Discuta as metas glicêmicas e a maior carga aterosclerótica."
+
+    - section: "7. ERROS COMUNS E O QUE EVITAR (PITFALLS)"
+      points:
+        - "Liste e explique pelo menos 10 erros comuns no manejo da SCA, como o uso de AINEs, esquecer das derivações posteriores, erro na dose de ataque de antiplaquetários, uso de nitrato em IAM de VD, etc."
+
+final_instruction: "Ao final, compile todas as informações em um único documento coeso, bem formatado e de fácil consulta, servindo como um guia de referência definitivo."
+
+extra_args:
+  - --max-output-tokens
+  - "8192"

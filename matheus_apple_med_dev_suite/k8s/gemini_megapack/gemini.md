@@ -31,11 +31,12 @@ Este pacote entrega um wrapper **robusto** para o **Gemini CLI** (login via Goog
 - **Ativar ambiente do projeto** (usando **direnv**):
   ```bash
   brew install direnv
-  echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
+  echo 'eval "$(direnv hook zsh)"'> ~/.zshrc
   cd /sua/pasta/do/projeto && direnv allow .
   ```
 
 ---
+
 
 ## 2) Estrutura do pacote
 
@@ -56,6 +57,7 @@ gemini_megapack/
 
 ---
 
+
 ## 3) Filosofia do wrapper
 
 - **Somente binário** (Google login). Sem chamadas HTTP.
@@ -68,6 +70,7 @@ gemini_megapack/
 - **others.json**: catálogo editável pelo usuário: extensões, plugins (toggles), interações e automations.
 
 ---
+
 
 ## 4) Comandos do wrapper
 
@@ -97,6 +100,7 @@ gemini_megapack/
 - `--` *(tudo após vai direto ao binário, ex.: `--max-output-tokens 2048`)*
 
 ---
+
 
 ## 5) others.json — catálogo
 
@@ -128,6 +132,7 @@ Exemplo (incluído no pacote):
 
 ---
 
+
 ## 6) Automations
 
 - **YAML/JSON**: precisam de `yq`/`jq` para parse (o wrapper usa o que existir).
@@ -137,6 +142,7 @@ Exemplo (incluído no pacote):
   - `temperature`, `prompt`, `extra_args`.
 
 ---
+
 
 ## 7) Fluxos práticos
 
@@ -159,6 +165,7 @@ gxa run automations/rx_brief.yaml <<<'Pneumonia grave, choque séptico, norepine
 
 ---
 
+
 ## 8) Troubleshooting
 
 - **"gemini: command not found"** → instale o CLI (`brew install gemini-cli`) ou exporte `GEMINI_BIN=/caminho/do/bin`.
@@ -167,6 +174,7 @@ gxa run automations/rx_brief.yaml <<<'Pneumonia grave, choque séptico, norepine
 - **Modelo trocado "sozinho"** → o wrapper está **forçando** `gemini-2.5-pro` (veja `GEMX_FORCE_MODEL`).
 
 ---
+
 
 ## 9) Roadmap sugerido
 
@@ -261,7 +269,7 @@ eventos `start|finish|dry-run|cancel` em `~/.config/gemx/logs/audit-YYYYMMDD.jso
 
 Exemplo de linha:
 ```json
-{"ts":"2025-09-18T12:34:56Z","event":"start","wd":"/path/proj","bin":"gemini","model":"gemini-2.5-pro","argv":["generate","--model","gemini-2.5-pro","--prompt","..."]}
+{"ts":"2025-09-18T12:34:56Z","event":"start","wd":"/path/proj","bin":"gemini","model":"gemini-2.5-pro","argv":["generate","--model","gemini-2.5-pro","--prompt","..." ]}
 ```
 
 Compatível com `--dry-run` e com o toggle `confirm_before_run` (que registra `cancel` se você negar).
@@ -345,6 +353,7 @@ gzmd --since 2025-09-01 --out ./stats_2025-09.md
 
 
 ---
+
 
 ## 21) Plugins (arquitetura simples)
 
@@ -430,11 +439,11 @@ CLI:
 
 - **Notion** (`plugins.d/notion_export.sh`)
   - Env: `NOTION_TOKEN` e `NOTION_DATABASE_ID` (ou preencha em `others.json → integrations` e exporte).
-  - Uso: `./plugins.d/notion_export.sh "Título" "Conteúdo"`
+  - Uso: `./plugins.d/notion_export.sh "Título" "Conteúdo"
 
 - **OmniFocus** (`plugins.d/omnifocus_task.sh`, macOS)
   - Requer `osascript`.
-  - Uso: `./plugins.d/omnifocus_task.sh "Título" "Nota" "Projeto" "Tag1,Tag2" "2025-10-01 09:00" "2025-10-02 18:00"`
+  - Uso: `./plugins.d/omnifocus_task.sh "Título" "Nota" "Projeto" "Tag1,Tag2" "2025-10-01 09:00" "2025-10-02 18:00"
 
 ## 31) Subcomando: dist
 
@@ -607,3 +616,27 @@ ingress:
     enabled: true
 ```
 O template `templates/managedcert.yaml` criará o recurso para os hosts configurados.
+
+```
+
+---
+
+## 4. Próximos Passos: Integração da Base de Conhecimento
+
+A recente adição de uma biblioteca de referência médica (manuais de emergência em PDF e o arquivo `drogas.md`) abre novas e importantes frentes de desenvolvimento para a suite. Os próximos passos se concentrarão em integrar este conhecimento diretamente nas ferramentas existentes:
+
+### 4.1. Alimentar o Plugin de RAG (Retrieval-Augmented Generation)
+- **Ação:** Indexar o conteúdo textual dos novos PDFs e do arquivo `drogas.md`.
+- **Objetivo:** Permitir que o `gemx.sh rag` possa realizar buscas e extrair informações diretamente desta base de conhecimento. Isso transformará o RAG de um buscador de contexto genérico para uma ferramenta de consulta de referência médica, capaz de responder perguntas como "qual a dose de ataque de amiodarona na FV?" com base nos manuais.
+
+### 4.2. Validar e Refinar as Automações Clínicas
+- **Ação:** Realizar uma revisão cruzada dos protocolos de automação existentes (`sca_protocol.yaml`, `avc_protocol.yaml`, etc.) contra as diretrizes e tabelas presentes nos PDFs.
+- **Objetivo:** Aumentar a robustez e a precisão dos prompts, garantindo que as perguntas interativas e as seções de tratamento estejam alinhadas com as melhores práticas descritas na literatura adicionada. Isso inclui refinar doses, contraindicações e fluxos de decisão.
+
+### 4.3. Expansão do Conteúdo Didático
+- **Ação:** Usar as tabelas de medicamentos e os algoritmos dos PDFs como base para criar novos notebooks didáticos.
+- **Objetivo:** Desenvolver notebooks focados em:
+    - **`04_Calculo_de_Drogas_de_Emergencia.ipynb`**: Um guia interativo para calcular doses de drogas vasoativas e outras medicações de emergência.
+    - **`05_Interpretacao_de_Algoritmos_ACLS.ipynb`**: Um notebook que disseca os algoritmos de parada cardiorrespiratória presentes nos manuais.
+
+```

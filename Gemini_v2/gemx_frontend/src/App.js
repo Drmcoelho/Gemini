@@ -8,14 +8,27 @@ function App() {
   const [output, setOutput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [health, setHealth] = useState('checking');
 
-  const API_BASE_URL = process.env.REACT_APP_API_BASE || 'http://localhost:8000';
+  // Use relative URLs by default so CRA dev server proxies to FastAPI.
+  // You can override with REACT_APP_API_BASE to target a full URL if needed.
+  const API_BASE_URL = process.env.REACT_APP_API_BASE || '';
 
   useEffect(() => {
+    // Healthcheck first
+    const checkHealth = async () => {
+      try {
+        const r = await fetch(`${API_BASE_URL}/health`);
+        setHealth(r.ok ? 'ok' : 'down');
+      } catch {
+        setHealth('down');
+      }
+    };
+
     // Fetch list of automations from the backend
     const fetchAutomations = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/automations`);
+  const response = await fetch(`${API_BASE_URL}/automations`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -27,6 +40,7 @@ function App() {
       }
     };
 
+    checkHealth();
     fetchAutomations();
   }, [API_BASE_URL]);
 
@@ -72,6 +86,10 @@ function App() {
     <div className="App">
       <header className="App-header">
         <h1>Gemini Megapack v2 Web Interface</h1>
+        <small style={{ opacity: 0.7 }}>
+          API: {API_BASE_URL || '/ (proxy to http://localhost:8000)'}
+          {" "}| Health: <span style={{color: health === 'ok' ? 'lightgreen' : '#ffcc00'}}>{health}</span>
+        </small>
       </header>
       <div className="App-container">
         <nav className="App-nav">
@@ -97,6 +115,13 @@ function App() {
           {selectedAutomation ? (
             <div>
               <h2>Run: {selectedAutomation}</h2>
+              <div style={{fontSize: '0.9em', opacity: 0.8, marginBottom: 8}}>
+                {selectedAutomation.split('/').map((seg, i, arr) => (
+                  <span key={i}>
+                    {seg}{i < arr.length - 1 ? ' / ' : ''}
+                  </span>
+                ))}
+              </div>
               <textarea
                 placeholder="Enter your prompt here..."
                 value={prompt}

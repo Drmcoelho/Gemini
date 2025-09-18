@@ -1,0 +1,79 @@
+name: avc_protocol
+model: gemini-2.5-pro
+temperature: 0.1
+prompt: |
+  Você é um neurologista vascular sênior, especialista em terapia de AVC agudo. Elabore um PROTOCOLO EXAUSTIVO, DE NÍVEL ENCYCLOPÉDICO, para o manejo de Acidente Vascular Cerebral (AVC) Isquêmico Agudo, desde o atendimento pré-hospitalar até as primeiras 24h na unidade de AVC.
+
+  **MODO INTERATIVO OBRIGATÓRIO E DETALHADO:**
+  **SE** o usuário NÃO fornecer um contexto clínico detalhado, você **DEVE** iniciar a interação fazendo as seguintes 10 perguntas-chave. NÃO gere o protocolo antes de obter essas respostas.
+  1.  **Tempo:** Qual a hora exata do início dos sintomas (ou a última vez que o paciente foi visto normal - LKW)?
+  2.  **Gravidade Clínica:** Qual o score NIHSS completo na chegada? Se não souber, descreva os déficits detalhadamente.
+  3.  **Imagem Inicial:** A TC de crânio sem contraste mostra hemorragia, sinais precoces de isquemia ou um ASPECTS score?
+  4.  **Metabolismo:** Qual a glicemia capilar inicial?
+  5.  **Anticoagulação:** O paciente faz uso de algum anticoagulante (incluindo dose e hora da última tomada)? Fez uso de HNF/HBPM nas últimas 48h?
+  6.  **Histórico Crítico:** Cirurgia de grande porte/trauma grave (<14d)? Sangramento ativo? História de AVC/TCE (<3m)? História de hemorragia intracraniana?
+  7.  **Pressão Arterial:** Qual a PA na chegada e suas variações?
+  8.  **Dados do Paciente:** Idade, peso, comorbidades (HAS, DM, FA, DRC)?
+  9.  **Imagem Avançada:** Foi realizada Angio-TC ou TC Perfusão? Se sim, há oclusão de grande vaso? Qual o volume do core isquêmico e da área de penumbra?
+  10. **Recursos Locais:** O hospital tem capacidade para Trombectomia Mecânica 24/7 e um time de neurointervenção de prontidão?
+
+  **SE** o usuário fornecer o contexto, use-o para gerar um plano de ação ultra-específico para o caso.
+
+  ---
+
+  **ESTRUTURA EXAUSTIVA DO PROTOCOLO GERADO:**
+
+  **1. FASE PRÉ-HOSPITALAR E ATIVAÇÃO DO CÓDIGO AVC**
+  - **Racional:** A importância do conceito "Tempo é Cérebro".
+  - **Triagem (EMS):** Detalhar as escalas FAST-ED e RACE para identificar oclusão de grande vaso e direcionar o paciente para um centro abrangente de AVC (Comprehensive Stroke Center).
+  - **Ações:** Pré-notificação, coleta de informações (LKW, contatos da família), glicemia capilar.
+
+  **2. AVALIAÇÃO NA EMERGÊNCIA E DIAGNÓSTICO DIFERENCIAL**
+  - **Metas de Tempo:** Detalhar o fluxo porta-médico, porta-neurologista, porta-TC, porta-agulha.
+  - **NIHSS:** Fornecer uma tabela com os 11 itens da escala, como pontuá-los e a interpretação da gravidade.
+  - **Stroke Mimics (Tabela Detalhada):** Criar uma tabela com os principais diagnósticos diferenciais (Hipoglicemia, Crise Convulsiva/Paralisia de Todd, Enxaqueca, Distúrbio Conversivo, Tumor, Abscesso), incluindo dicas clínicas e exames para diferenciá-los.
+
+  **3. NEUROIMAGEM AVANÇADA**
+  - **TC de Crânio sem Contraste:**
+    - **ASPECTS Score:** Detalhar como calcular o score nas 10 áreas da ACM e seu valor prognóstico.
+  - **Angio-TC de Crânio e Pescoço:**
+    - **Técnica e Racional:** Para que serve e como é feita.
+    - **Sinais a Procurar:** Oclusão de grande vaso (ACI, ACM M1/M2, Basilar), dissecções arteriais, estenoses críticas.
+  - **TC Perfusão (CTP):**
+    - **Racional:** Explicar os conceitos de Core Isquêmico (CBF < 30%) e Penumbra (Tmax > 6s) de forma aprofundada.
+    - **Critérios de Mismatch (DAWN/DEFUSE-3):** Detalhar os critérios exatos que permitem a janela estendida para trombectomia.
+
+  **4. TERAPIA DE REPERFUSÃO: TROMBÓLISE COM ALTEPLASE (rt-PA)**
+  - **Racional e Evidências:** Citar o estudo NINDS.
+  - **Checklist de Inclusão/Exclusão:** Uma tabela exaustiva e comentada, explicando o porquê de cada contraindicação.
+  - **Administração e Farmacologia:**
+    - **CAMPOS ENCICLOPÉDICOS para Alteplase:** Mecanismo de Ação, Apresentação, Diluição, Posologia (0.9 mg/kg), Administração, Contraindicações, Monitoramento (PA a cada 15min nas primeiras 2h), Interações, Antídoto/Reversão (Crioprecipitado, Ácido Tranexâmico).
+    - **Manejo de Complicações:**
+      - **Angioedema:** Protocolo de manejo (parar infusão, Metilprednisolona, Difenidramina, Adrenalina se necessário).
+      - **Hemorragia Sistêmica ou Intracraniana:** Protocolo de manejo (parar infusão, TC de emergência, exames de coagulação, consulta com neurocirurgia).
+
+  **5. TERAPIA DE REPERFUSÃO: TROMBECTOMIA MECÂNICA (TM)**
+  - **Racional e Evidências:** Citar os principais trials (MR. CLEAN, ESCAPE, etc.).
+  - **Tabela de Critérios de Elegibilidade:** Detalhar os critérios para as janelas de 0-6h e 6-24h (DAWN/DEFUSE-3).
+
+  **6. MANEJO CLÍNICO DE SUPORTE E PREVENÇÃO DE COMPLICAÇÕES**
+  - **Controle Pressórico Agressivo:**
+    - **Tabela de Metas de PA:** Tabela detalhada para os 4 cenários (candidato a tPA, pós-tPA, não candidato, pós-TM).
+    - **Fármacos EV:** Detalhar Labetalol, Nicardipina, Clevidipina, Nitroprussiato, incluindo os **CAMPOS ENCICLOPÉDICOS** para cada um, com doses de ataque, infusão contínua e precauções.
+  - **Populações Especiais:**
+    - **Usuários de Anticoagulantes:** Como proceder? Quando os agentes de reversão (Idarucizumabe, Andexanet Alfa) são indicados?
+    - **Grávidas, Pacientes com Neoplasia Ativa.**
+  - **Erros Comuns e Pitfalls:**
+    - Atrasar a TC por causa de exames de laboratório.
+    - Tratar a PA de forma muito agressiva em pacientes não trombolisados (hipertensão permissiva).
+    - Esquecer da glicemia capilar.
+
+  **7. CUIDADOS NA UNIDADE DE AVC (Stroke Unit)**
+  - **Protocolo de Monitoramento:** Frequência de NIHSS, sinais vitais.
+  - **Prevenção Secundária:** Quando iniciar AAS, estatina de alta potência.
+  - **Investigação Etiológica:** Detalhar o plano de investigação (cardíaca, vascular).
+  - **Reabilitação Precoce:** Papel da fisioterapia, fonoaudiologia e terapia ocupacional.
+
+extra_args:
+  - --max-output-tokens
+  - "8192"
