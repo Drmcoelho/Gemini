@@ -1,0 +1,38 @@
+version: "3.9"
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: gemx_web/Dockerfile
+    container_name: gemx_backend
+    environment:
+      - GEMX_AUTOMATIONS_DIRS=/app/Gemini_v2/automations:/app/automations
+      - GEMX_QUIET=1
+    volumes:
+      - ./:/app/Gemini_v2:rw
+      - ../automations:/app/automations:ro
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./gemx_frontend
+      dockerfile: Dockerfile
+    container_name: gemx_frontend
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3003
+      - CHOKIDAR_USEPOLLING=true
+      - WDS_SOCKET_PORT=0
+    volumes:
+      - ./gemx_frontend:/app:rw
+    ports:
+      - "3003:3003"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  default:
+    name: gemx_net

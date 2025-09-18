@@ -1,0 +1,35 @@
+# Node
+node_modules/
+**/node_modules/
+**/.cache/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+.venv/
+
+# OS & Editors
+.DS_Store
+*.swp
+
+# Logs
+*.log
+
+# Env
+.env
+.env.*
+
+# Build
+build/
+dist/
+.cache/
+coverage/
+
+# Frontend specific caches
+**/Gemini_v2/gemx_frontend/node_modules/
+**/Gemini_v2/gemx_frontend/build/
+**/Gemini_v2/gemx_frontend/.cache/
+**/Gemini_v2/gemx_frontend/node_modules/.cache/

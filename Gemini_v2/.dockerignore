@@ -1,0 +1,16 @@
+node_modules
+**/__pycache__
+**/.pytest_cache
+**/.mypy_cache
+.venv
+.env
+*.log
+*.pyc
+*.pyo
+*.pyd
+*.swp
+.DS_Store
+Gemini_v2/gemx_frontend/node_modules
+Gemini_v2/gemx_frontend/build
+Gemini_v2/gemx_frontend/.cache
+Gemini_v2/gemx_web/__pycache__
