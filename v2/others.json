@@ -1,0 +1,221 @@
+{
+  "extensions": [
+    {
+      "id": "dlvhdr/gh-dash",
+      "description": "Dashboard TUI para issues/PRs no GitHub"
+    },
+    {
+      "id": "github/gh-copilot",
+      "description": "Copilot via gh (quando disponível)"
+    },
+    {
+      "id": "gennaro-tedesco/gh-s",
+      "description": "Busca issues/PRs (fuzzy) do GitHub"
+    },
+    {
+      "id": "mislav/gh-branch",
+      "description": "Gerencie branches via gh"
+    },
+    {
+      "id": "yusukebe/gh-markdown-preview",
+      "description": "Preview de Markdown no navegador"
+    },
+    {
+      "id": "k1LoW/gh-grep",
+      "description": "Grep de conteúdo em repositórios remotos"
+    },
+    {
+      "id": "kazuyukitanimura/gh-p",
+      "description": "PRs avançados via gh"
+    },
+    {
+      "id": "matt-bartel/gh-release-notes",
+      "description": "Gere release notes rapidamente"
+    }
+  ],
+  "plugins": [
+    {
+      "key": "web_fetch",
+      "default": false,
+      "description": "Permitir buscas/contexto web (se suportado pelo CLI)."
+    },
+    {
+      "key": "image_caption",
+      "default": false,
+      "description": "Caption de imagem (se suportado)."
+    },
+    {
+      "key": "fzf_default",
+      "default": true,
+      "description": "Usar FZF por padrão sempre que disponível."
+    },
+    {
+      "key": "confirm_before_run",
+      "default": false,
+      "description": "Pedir confirmação antes de executar comandos longos."
+    },
+    {
+      "key": "audit_log_jsonl",
+      "default": false,
+      "description": "Gravar JSONL com comandos e timestamps em ~/.config/gemx/logs/."
+    },
+    {
+      "key": "auto_history",
+      "default": true,
+      "description": "Salvar histórico de todas respostas em ~/.config/gemx/history/."
+    },
+    {
+      "key": "safe_prompts",
+      "default": true,
+      "description": "Aplicar filtros simples para evitar prompts malformados."
+    }
+  ],
+  "interactions": [
+    {
+      "id": "template_rx",
+      "type": "template",
+      "label": "Template: RX (condutas completas)",
+      "template_key": "rx"
+    },
+    {
+      "id": "prompt_brief",
+      "type": "prompt",
+      "label": "Brief 5 bullets",
+      "prompt": "Resuma o tópico a seguir em 5 bullets conclusivos."
+    },
+    {
+      "id": "auto_rx_brief",
+      "type": "automation",
+      "label": "Automation: rx_brief.yaml",
+      "file": "automations/rx_brief.yaml"
+    },
+    {
+      "id": "auto_sepse_bundle",
+      "type": "automation",
+      "label": "Automation: Sepse Bundle",
+      "file": "automations/sepse_bundle.yaml"
+    },
+    {
+      "id": "auto_hda_triage",
+      "type": "automation",
+      "label": "Automation: HDA Triage",
+      "file": "automations/hda_triage.yaml"
+    },
+    {
+      "id": "auto_ira_algoritmo",
+      "type": "automation",
+      "label": "Automation: IRA Algoritmo",
+      "file": "automations/ira_algoritmo.yaml"
+    },
+    {
+      "id": "auto_vm_inicial",
+      "type": "automation",
+      "label": "Automation: VM Inicial",
+      "file": "automations/ventilacao_mecanica_inicial.yaml"
+    },
+    {
+      "id": "auto_sepse",
+      "type": "automation",
+      "label": "Automation: Sepse Bundle",
+      "file": "automations/sepse_bundle.yaml"
+    },
+    {
+      "id": "auto_hda",
+      "type": "automation",
+      "label": "Automation: HDA Triage",
+      "file": "automations/hda_triage.yaml"
+    },
+    {
+      "id": "auto_ira",
+      "type": "automation",
+      "label": "Automation: IRA/AKI",
+      "file": "automations/ira_aki.yaml"
+    },
+    {
+      "id": "auto_vm",
+      "type": "automation",
+      "label": "Automation: Ventilação Mecânica",
+      "file": "automations/ventilacao_mecanica.yaml"
+    },
+    {
+      "id": "auto_bronco",
+      "type": "automation",
+      "label": "Automation: Broncoespasmo Seco",
+      "file": "automations/broncoespasmo_seco.yaml"
+    },
+    {
+      "id": "template_hda",
+      "type": "template",
+      "label": "Template: HDA",
+      "template_key": "hda"
+    },
+    {
+      "id": "prompt_struct_code",
+      "type": "prompt",
+      "label": "Prompt: Clean Code Brief",
+      "prompt": "Explique a arquitetura proposta em 7 bullets objetivos e um diagrama ASCII."
+    }
+  ],
+  "automations": [
+    {
+      "file": "automations/rx_brief.yaml",
+      "description": "Gera condutas estruturadas com template RX."
+    },
+    {
+      "file": "automations/sgarbossa_check.yaml",
+      "description": "Explica Sgarbossa com bullets práticos."
+    },
+    {
+      "file": "automations/batch_from_file.sh",
+      "description": "Processa prompts em lote a partir de arquivo."
+    },
+    {
+      "file": "automations/sepse_bundle.yaml",
+      "description": "Bundle de sepse T0–6h com farmacologia completa."
+    },
+    {
+      "file": "automations/hda_triage.yaml",
+      "description": "Fluxo operacional de HDA (triagem → estabilização → EDA/transfêrencia)."
+    },
+    {
+      "file": "automations/ira_algoritmo.yaml",
+      "description": "Algoritmo de IRA (Prerrenal vs ATN vs Pós-renal) com condutas."
+    },
+    {
+      "file": "automations/ventilacao_mecanica_inicial.yaml",
+      "description": "Protocolo de início de VM invasiva em adulto."
+    },
+    {
+      "file": "automations/ira_aki.yaml",
+      "description": "IRA/AKI: avaliação, ajuste e critérios de diálise."
+    },
+    {
+      "file": "automations/ventilacao_mecanica.yaml",
+      "description": "VM inicial por fenótipo + sedoanalgesia."
+    },
+    {
+      "file": "automations/broncoespasmo_seco.yaml",
+      "description": "Manejo prático de broncoespasmo em época seca."
+    }
+  ],
+  "integrations": [
+    {
+      "key": "obsidian_vault",
+      "type": "path",
+      "description": "Caminho do vault Obsidian para exportar notas (futuro).",
+      "value": ""
+    },
+    {
+      "key": "default_pager",
+      "type": "string",
+      "description": "PAGER padrão (less -R, bat, etc).",
+      "value": ""
+    },
+    {
+      "key": "default_editor",
+      "type": "string",
+      "description": "EDITOR padrão (code -w, vim, nano).",
+      "value": ""
+    }
+  ]
+}

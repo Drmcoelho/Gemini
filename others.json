@@ -4,7 +4,7 @@
     "version": "2.0.0",
     "author": "Gemini",
     "description": "Um catálogo robusto de extensões, ações e recursos para o gemx.sh.",
-    "updated_at": "2025-09-18T10:00:00Z"
+    "updated_at": "2025-09-18T12:00:00Z"
   },
   "extensions": [
     {
@@ -41,6 +41,41 @@
       "description": "Caption de imagem (se suportado).",
       "tags": ["core", "vision"]
     }
+  ],
+  "interactions": [
+    {
+      "id": "template_rx",
+      "type": "template",
+      "label": "Template: RX (condutas)",
+      "template_key": "rx",
+      "tags": ["medical", "template"]
+    },
+    {
+      "id": "prompt_brief",
+      "type": "prompt",
+      "label": "Prompt: Resumo (5 bullets)",
+      "prompt": "Resuma o tópico a seguir em 5 bullets conclusivos.",
+      "tags": ["text", "summary"]
+    },
+    {
+      "id": "auto_rx_brief",
+      "type": "automation",
+      "label": "Automation: rx_brief.yaml",
+      "file": "automations/rx_brief.yaml",
+      "tags": ["medical", "automation"]
+    },
+    {
+      "id": "auto_sgarbossa",
+      "type": "automation",
+      "label": "Automation: sgarbossa_check.yaml",
+      "file": "automations/sgarbossa_check.yaml",
+      "tags": ["medical", "automation"]
+    }
+  ],
+  "automations": [
+    { "file": "automations/rx_brief.yaml", "description": "Condutas RX estruturadas (YAML)" },
+    { "file": "automations/sgarbossa_check.yaml", "description": "Critérios de Sgarbossa (YAML)" },
+    { "file": "automations/batch_from_file.sh", "description": "Geração em lote a partir de arquivo (script)" }
   ],
   "actions": [
     {

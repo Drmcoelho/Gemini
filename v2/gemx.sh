@@ -13,15 +13,64 @@ fi
 GEMX_HOME="${GEMX_HOME:-$HOME/.config/gemx}"
 GEMX_CFG="$GEMX_HOME/config.json"
 GEMX_HIST="${GEMX_HOME}/history"
+GEMX_LOGS="${GEMX_HOME}/logs"
 GEMX_AUTOS="${GEMX_AUTOS:-./automations}"   # automations do projeto
 GEMX_OTHERS="${GEMX_OTHERS:-./others.json}" # catálogo de extensões/plugins/integrações/automations
-mkdir -p "$GEMX_HOME" "$GEMX_HIST" "$GEMX_AUTOS"
+mkdir -p "$GEMX_HOME" "$GEMX_HIST" "$GEMX_LOGS" "$GEMX_AUTOS"
 
 # --- "sempre gemini-2.5-pro" ---
 # Se definido, este valor SOBRESCREVE QUALQUER seleção de modelo.
 GEMX_FORCE_MODEL="${GEMX_FORCE_MODEL:-gemini-2.5-pro}"
 
 # ---------- Helpers portáteis ----------
+audit_enabled(){ [ "$(get_cfg '.plugins.audit_log_jsonl')" = "true" ]; }
+audit_log(){
+  # Usage: audit_log <event> <bin> <args...>
+  audit_enabled || return 0
+  local event="$1"; shift
+  local bin="$1"; shift
+  local ts; ts="$(now_iso_utc)"
+  local wd="$PWD"
+  local model
+  model="$(get_cfg '.model')"
+  if [ -n "${GEMX_FORCE_MODEL:-}" ]; then model="$GEMX_FORCE_MODEL"; fi
+  # Build argv JSON array
+  local argv_json
+  argv_json=$(printf '%s\n' "$@" | jq -R . | jq -s .)
+  # Ensure logs dir
+  local lf_dir="$GEMX_LOGS"; mkdir -p "$lf_dir"
+  local lf="$lf_dir/audit-$(date -u +%Y%m%d).jsonl"
+  jq -cn --arg ts "$ts" --arg event "$event" --arg wd "$wd" --arg bin "$bin" --arg model "$model" --argjson argv "$argv_json" '{ts:$ts,event:$event,wd:$wd,bin:$bin,model:$model,argv:$argv}' >> "$lf"
+}
+confirm_run(){
+  [ "$(get_cfg '.plugins.confirm_before_run')" = "true" ] || return 0
+  [ -t 1 ] || return 0
+  printf "Confirmar execução? [y/N]: "
+  local a; read -r a || return 1
+  a="$(lower "$a")"; [ "$a" = "y" ] || [ "$a" = "yes" ]
+}
+
+GEMX_DRYRUN="${GEMX_DRYRUN:-}"
+run_cmd(){
+  # Echo-only when dry-run enabled
+  if [ -n "$GEMX_DRYRUN" ]; then
+    echo "[DRY-RUN] $*"
+    audit_log "dry-run" "$1" "${@:2}"
+    return 0
+  fi
+  # Optional confirm-before-run
+  if ! confirm_run; then
+    echo "[CANCELADO] $*"
+    audit_log "cancel" "$1" "${@:2}"
+    return 130
+  fi
+  audit_log "start" "$1" "${@:2}"
+  "$@"
+  local st=$?
+  audit_log "finish" "$1" "${@:2}"
+  return $st
+}
+
 lower() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
 now_iso_utc() { date -u +"%Y-%m-%dT%H:%M:%SZ"; }
 ts_compact()   { date -u +"%Y%m%dT%H%M%SZ"; }
@@ -32,6 +81,23 @@ warn() { echo "$(color 33 "[WARN]") $*"; }
 err()  { echo "$(color 31 "[ERR]")  $*" 1>&2; }
 need() { command -v "$1" >/dev/null 2>&1; }
 confirm() { printf "%s [y/N]: " "$1"; read -r a || return 1; a="$(lower "$a")"; [ "$a" = "y" ] || [ "$a" = "yes" ]; }
+
+# FZF detection and helpers
+has_fzf() { command -v fzf >/dev/null 2>&1; }
+fzf_select() {
+  # $1: list command; $2: preview command or empty
+  local preview="$2"
+  if has_fzf; then
+    if [ -n "$preview" ]; then
+      eval "$1" | fzf --no-mouse --height=90% --reverse --border --preview "$preview" --preview-window=right:60%
+    else
+      eval "$1" | fzf --no-mouse --height=90% --reverse --border
+    fi
+  else
+    warn "fzf não instalado. Usando primeira entrada disponível.";
+    eval "$1" | head -n1
+  fi
+}
 
 # ---------- Binário (Google login; sem API) ----------
 # Ordem: GEMINI_BIN > gemini > gmini
@@ -120,13 +186,7 @@ EOT
 }
 
 # ---------- Core: chamar o binário ----------
-gem_exec() { ensure_bin || return 127; "$GEMX_BIN" "$@"; }
-
-# Verifica se o binário suporta um subcomando (heurística via --help)
-supports_subcmd() {
-  ensure_bin || return 1
-  "$GEMX_BIN" --help 2>/dev/null | grep -qE "(^|[[:space:]])$1([[:space:]]|$)"
-}
+gem_exec() { ensure_bin || return 127; run_cmd "$GEMX_BIN" "$@"; }
 
 # One-shot generate (com sistema/temperatura/modelo/imagens)
 gem_gen() {
@@ -141,24 +201,14 @@ gem_gen() {
     model="$GEMX_FORCE_MODEL"
   fi
 
-  if supports_subcmd generate; then
-    # CLI com subcomando 'generate'
-    local args=( generate --model "$model" --temperature "$temp" --prompt "$prompt" )
-    [ -n "$system" ] && [ "$system" != "null" ] && [ "$system" != "" ] && args+=( --system "$system" )
-    while [ $# -gt 0 ]; do
-      if [ -f "$1" ]; then args+=( --image "$1" ); shift; else break; fi
-    done
-    [ $# -gt 0 ] && args+=( "$@" )
-    gem_exec "${args[@]}"
-  else
-    # Fallback para o Gemini CLI (npm) que aceita -m/-p e não tem 'generate'
-    # Observação: este modo não suporta imagens nem --system explicitamente.
-    local args=( -m "$model" -p "$prompt" )
-    # temperatura e system não têm flags equivalentes estáveis; ignoramos aqui
-    # Passar quaisquer args extras após -- diretamente ao binário
-    [ $# -gt 0 ] && args+=( "$@" )
-    gem_exec "${args[@]}"
-  fi
+  local args=( generate --model "$model" --temperature "$temp" --prompt "$prompt" )
+  [ -n "$system" ] && [ "$system" != "null" ] && [ "$system" != "" ] && args+=( --system "$system" )
+
+  while [ $# -gt 0 ]; do
+    if [ -f "$1" ]; then args+=( --image "$1" ); shift; else break; fi
+  done
+  [ $# -gt 0 ] && args+=( "$@" )
+  gem_exec "${args[@]}"
 }
 
 # Chat interativo
@@ -271,117 +321,171 @@ others_menu() {
   if [ ! -f "$GEMX_OTHERS" ]; then
     warn "others.json não encontrado em $GEMX_OTHERS"; return 1
   fi
-  
-  local FILTER_TAG=""
-
   while true; do
-    local title_filter
-    if [ -n "$FILTER_TAG" ]; then 
-      title_filter="$(color 33 " (Filtro: $FILTER_TAG)")"
-    fi
-    
     echo
-    echo "$(color 35 '[OTHERS]') Catálogo v2$title_filter:"
-    echo "  F) Filtrar por tag (atual: ${FILTER_TAG:-nenhum})"
-    echo "-------------------------------------"
+    echo "$(color 35 '[OTHERS]') Catálogo:"
     echo "  1) Extensões (install)"
-    echo "  2) Plugins (toggle)"
-    echo "  3) Ações (run)"
-    echo "  4) Recursos (view)"
+    echo "  2) Plugins (toggle -> config.json)"
+    echo "  3) Interações (roda prompts/templates)"
+    echo "  4) Automations (run)"
     echo "  5) Voltar"
     printf "> "
     read -r op
-    
-    op_lower=$(lower "$op")
-    if [ "$op_lower" = "f" ]; then
-      printf "Digite a tag para filtrar (Enter para limpar): "; read -r FILTER_TAG
-      continue
-    fi
-
     case "$op" in
       1)
         if ! need gh; then warn "GitHub CLI (gh) não instalado"; continue; fi
-        
-        local filter_expr
-        if [ -z "$FILTER_TAG" ]; then filter_expr=".extensions"; else filter_expr="[.extensions[] | select(.tags and (.tags | contains([\"$FILTER_TAG\"])))]"; fi
-
-        jq -r "$filter_expr | .[] | \"\(.id)\t\(.description)\"" "$GEMX_OTHERS" | nl -ba
-        printf "Selecione # para instalar (Enter para voltar): "; read -r n; [ -z "$n" ] && continue
-
-        id=$(jq -r --argjson n "$n" "$filter_expr | .[$n-1].id" "$GEMX_OTHERS" 2>/dev/null)
+        # Lista extensões e permite instalar
+        jq -r '.extensions[]? | "\(.id)\t\(.description)"' "$GEMX_OTHERS" | nl -ba
+        printf "Selecione # para instalar (Enter para voltar): "
+        read -r n; [ -z "$n" ] && continue
+        id="$(jq -r --argjson n "$n" '.extensions[$n-1].id' "$GEMX_OTHERS" 2>/dev/null)"
         [ -z "$id" ] || gh extension install "$id"
         ;;
       2)
-        local filter_expr
-        if [ -z "$FILTER_TAG" ]; then filter_expr=".plugins"; else filter_expr="[.plugins[] | select(.tags and (.tags | contains([\"$FILTER_TAG\"])))]"; fi
-
-        jq -r "$filter_expr | .[] | \"\(.key)\t\(.description)\"" "$GEMX_OTHERS" | nl -ba
-        printf "Selecione # para alternar plugin (Enter para voltar): "; read -r n; [ -z "$n" ] && continue
-        
-        key=$(jq -r --argjson n "$n" "$filter_expr | .[$n-1].key" "$GEMX_OTHERS" 2>/dev/null)
-        [ -z "$key" ] && continue
-        
-        set_cfg ".plugins.$key = ( .plugins.$key | not )"
+        # Plugins: chave -> toggle boolean em config.json
+        jq -r '.plugins[]? | "\(.key)\t\(.description)\t(default:\(.default))"' "$GEMX_OTHERS" | nl -ba
+        printf "Selecione # para alternar plugin (Enter para voltar): "
+        read -r n; [ -z "$n" ] && continue
+        key="$(jq -r --argjson n "$n" '.plugins[$n-1].key' "$GEMX_OTHERS" 2>/dev/null)"
+        [ -z "$key" ] || set_cfg ".plugins.$key = ( .plugins.$key | not )"
         echo "Plugin '$key' agora: $(get_cfg ".plugins.$key")"
         ;;
       3)
-        local filter_expr
-        if [ -z "$FILTER_TAG" ]; then filter_expr=".actions"; else filter_expr="[.actions[] | select(.tags and (.tags | contains([\"$FILTER_TAG\"])))]"; fi
-
-        jq -r "$filter_expr | .[] | \"\(.label)\t| \(.type) | tags: \(.tags | join(\", \"))\"" "$GEMX_OTHERS" | nl -ba
-        printf "Selecione # para executar (Enter p/ voltar): "; read -r n; [ -z "$n" ] && continue
-        
-        action_json=$(jq -r --argjson n "$n" "$filter_expr | .[$n-1]" "$GEMX_OTHERS" 2>/dev/null)
-        [ -z "$action_json" ] && { err "Ação inválida"; continue; }
-
-        type="$(echo "$action_json" | jq -r '.type')"
-        
+        # Interações: template/prompt predefinido
+        jq -r '.interactions[]? | "\(.id)\t\(.label)"' "$GEMX_OTHERS" | nl -ba
+        printf "Selecione # (Enter p/ voltar): "
+        read -r n; [ -z "$n" ] && continue
+        type="$(jq -r --argjson n "$n" '.interactions[$n-1].type' "$GEMX_OTHERS")"
         case "$type" in
           template)
-            key="$(echo "$action_json" | jq -r '.template_key')"
+            key="$(jq -r --argjson n "$n" '.interactions[$n-1].template_key' "$GEMX_OTHERS")"
             prompt="$(jq -r --arg k "$key" '.templates[$k]' "$GEMX_CFG")"
-            [ -z "$prompt" ] && { err "Template '$key' não encontrado em config.json"; continue; }
+            [ -z "$prompt" ] && { err "template '$key' não encontrado em config.json"; continue; }
             gem_gen "$prompt"
             ;;
           prompt)
-            p="$(echo "$action_json" | jq -r '.prompt')"
-            if echo "$p" | grep -q '$(git diff --staged)'; then
-                staged_diff="$(git diff --staged)"
-                if [ -z "$staged_diff" ]; then
-                    warn "Nenhuma mudança no stage. O prompt pode ficar vazio."
-                fi
-                p=$(echo "$p" | sed "s|\\\$(git diff --staged)|$staged_diff|")
-            fi
+            p="$(jq -r --argjson n "$n" '.interactions[$n-1].prompt' "$GEMX_OTHERS")"
             gem_gen "$p"
             ;;
           automation)
-            f="$(echo "$action_json" | jq -r '.file')"
+            f="$(jq -r --argjson n "$n" '.interactions[$n-1].file' "$GEMX_OTHERS")"
             auto_run "$f"
             ;;
-          shell)
-            cmd="$(echo "$action_json" | jq -r '.command')"
-            info "Executando: $cmd"
-            eval "$cmd"
-            ;;
           *)
-            err "Tipo de ação desconhecido: $type";;
+            err "tipo desconhecido";;
         esac
         ;;
       4)
-        local filter_expr
-        if [ -z "$FILTER_TAG" ]; then filter_expr=".resources"; else filter_expr="[.resources[] | select(.tags and (.tags | contains([\"$FILTER_TAG\"])))]"; fi
-
-        jq -r "$filter_expr | .[] | \"\(.description)\t| \(.url)\"" "$GEMX_OTHERS" | nl -ba
-        printf "Selecione # para ver a URL (Enter para voltar): "; read -r n; [ -z "$n" ] && continue
-        
-        url=$(jq -r --argjson n "$n" "$filter_expr | .[$n-1].url" "$GEMX_OTHERS" 2>/dev/null)
-        [ -n "$url" ] && info "URL: $url"
+        # Automations cadastradas no others.json
+        jq -r '.automations[]? | "\(.file)\t\(.description)"' "$GEMX_OTHERS" | nl -ba
+        printf "Selecione # para rodar (Enter p/ voltar): "
+        read -r n; [ -z "$n" ] && continue
+        f="$(jq -r --argjson n "$n" '.automations[$n-1].file' "$GEMX_OTHERS")"
+        auto_run "$f"
         ;;
       5) return 0 ;;
-      *) err "Opção inválida." ;;
     esac
   done
 }
+
+
+# ---------- FZF-centered pickers ----------
+fzf_hist() {
+  local dir="$GEMX_HIST"
+  [ -d "$dir" ] || { warn "Sem histórico em $dir"; return 1; }
+  local cmd="ls -1t $dir/sess_*.md 2>/dev/null"
+  local prev='[ -f {} ] && (echo {} && echo "-----" && sed -n "1,120p" {} )'
+  local pick="$(fzf_select "$cmd" "$prev")"
+  [ -n "$pick" ] && ${PAGER:-less} "$pick"
+}
+
+fzf_auto() {
+  local dir="$GEMX_AUTOS"
+  [ -d "$dir" ] || { warn "Sem automations em $dir"; return 1; }
+  local cmd="ls -1 $dir/*.{yaml,yml,json,sh} 2>/dev/null || ls -1 $dir/* 2>/dev/null"
+  local prev='[ -f {} ] && (echo {} && echo "-----" && sed -n "1,200p" {} )'
+  local pick="$(fzf_select "$cmd" "$prev")"
+  [ -n "$pick" ] && auto_run "$pick"
+}
+
+fzf_tpl() {
+  local keys="$(jq -r '.templates | keys[]' "$GEMX_CFG" 2>/dev/null)"
+  if [ -z "$keys" ]; then warn "Sem templates no config."; return 1; fi
+  local tmp="$(mktemp "${TMPDIR:-/tmp}/gemtpl.XXXXXX")" || return 1
+  printf "%s\n" "$keys" > "$tmp"
+  local prev='jq -r --arg k {1} ".templates[$k]" '"$GEMX_CFG"' 2>/dev/null | sed -n "1,80p"'
+  # fzf does not natively do variable substitution in preview; hack: use awk to print the key and then call jq
+  local pick="$(cat "$tmp" | fzf --no-mouse --height=90% --reverse --border --preview-window=right:60% --preview "k={}; jq -r --arg k \"$k\" '.templates[$k]' $GEMX_CFG 2>/dev/null | sed -n '1,120p'")"
+  rm -f "$tmp"
+  [ -n "$pick" ] || return 1
+  local prompt="$(jq -r --arg k "$pick" '.templates[$k]' "$GEMX_CFG")"
+  [ -n "$prompt" ] && gem_gen "$prompt"
+}
+
+fzf_models() {
+  # capture models list; try multiple commands
+  local out="$( (gem_exec model list 2>/dev/null || gem_exec models 2>/dev/null) | sed -n '1,200p' )"
+  if [ -z "$out" ]; then warn "Não consegui listar modelos; use 'models'."; return 1; fi
+  local tmp="$(mktemp "${TMPDIR:-/tmp}/gemmdl.XXXXXX")" || return 1
+  printf "%s\n" "$out" > "$tmp"
+  local pick="$(cat "$tmp" | fzf --no-mouse --height=90% --reverse --border)"
+  rm -f "$tmp"
+  # tenta extrair o primeiro campo alfanumérico como nome do modelo
+  local m="$(printf "%s" "$pick" | awk '{print $1}')"
+  [ -n "$m" ] && gem_set_model "$m"
+}
+
+fzf_others() {
+  if [ ! -f "$GEMX_OTHERS" ]; then warn "others.json não encontrado: $GEMX_OTHERS"; return 1; fi
+  local tmp; tmp="$(mktemp "${TMPDIR:-/tmp}/gemoth.XXXXXX")" || return 1
+  jq -r '.extensions[]? | "EXT	\(.id)	\(.description // "")"' "$GEMX_OTHERS" >> "$tmp"
+  jq -r '.plugins[]? | "PLG	\(.key)	\(.description // "")"' "$GEMX_OTHERS" >> "$tmp"
+  jq -r '.interactions[]? | "INT	\(.id)	\(.label // .id)"' "$GEMX_OTHERS" >> "$tmp"
+  jq -r '.automations[]? | "AUT	\(.file)	\(.description // "")"' "$GEMX_OTHERS" >> "$tmp"
+  local pv='
+    IFS="	" read -r t a b <<< "$(printf "%s" {} )";
+    case "$t" in
+      EXT)
+        echo "Extensão: $a"; echo; jq -r --arg id "$a" '.extensions[] | select(.id==$id) | .description' "$GEMX_OTHERS";;
+      PLG)
+        echo "Plugin: $a"; echo; echo "Descrição:"; jq -r --arg k "$a" '.plugins[] | select(.key==$k) | .description' "$GEMX_OTHERS"; echo; echo "Valor atual (config.json): $(get_cfg ".plugins.$a")";;
+      INT)
+        echo "Interaction: $a"; echo; jq -r --arg id "$a" '.interactions[] | select(.id==$id)' "$GEMX_OTHERS"; echo; 
+        # se for template, mostra o conteúdo
+        itype=$(jq -r --arg id "$a" '.interactions[] | select(.id==$id) | .type' "$GEMX_OTHERS");
+        if [ "$itype" = "template" ]; then key=$(jq -r --arg id "$a" '.interactions[] | select(.id==$id) | .template_key' "$GEMX_OTHERS"); echo; echo "--- template [$key] ---"; jq -r --arg k "$key" '.templates[$k]' "$GEMX_CFG"; fi;
+        ;;
+      AUT)
+        echo "Automation: $a"; echo; [ -f "$a" ] && sed -n "1,200p" "$a" || echo "(arquivo não encontrado)";;
+    esac
+  '
+  local pick
+  if has_fzf; then
+    pick="$(cat "$tmp" | fzf --with-nth=1,2,3 --delimiter="	" --no-mouse --height=90% --reverse --border \
+           --preview="$pv" --preview-window=right:65%)"
+  else
+    warn "fzf não instalado. Usando primeira entrada disponível."
+    pick="$(head -n1 "$tmp")"
+  fi
+  rm -f "$tmp"
+  [ -n "$pick" ] || return 0
+  local t; t="$(printf "%s" "$pick" | awk -F'	' '{print $1}')"
+  local a; a="$(printf "%s" "$pick" | awk -F'	' '{print $2}')"
+  case "$t" in
+    EXT)
+      if need gh; then gh extension install "$a"; else warn "gh não instalado."; fi ;;
+    PLG)
+      set_cfg ".plugins.$a = ( .plugins.$a | not )"; echo "Plugin '$a' agora: $(get_cfg ".plugins.$a")" ;;
+    INT)
+      local itype; itype="$(jq -r --arg id "$a" '.interactions[] | select(.id==$id) | .type' "$GEMX_OTHERS")"
+      if [ "$itype" = "template" ]; then key="$(jq -r --arg id "$a" '.interactions[] | select(.id==$id) | .template_key' "$GEMX_OTHERS")"; p="$(jq -r --arg k "$key" '.templates[$k]' "$GEMX_CFG")"; [ -n "$p" ] && gem_gen "$p";
+      elif [ "$itype" = "prompt" ]; then p="$(jq -r --arg id "$a" '.interactions[] | select(.id==$id) | .prompt' "$GEMX_OTHERS")"; [ -n "$p" ] && gem_gen "$p";
+      elif [ "$itype" = "automation" ]; then f="$(jq -r --arg id "$a" '.interactions[] | select(.id==$id) | .file' "$GEMX_OTHERS")"; [ -n "$f" ] && auto_run "$f"; fi ;;
+    AUT)
+      auto_run "$a" ;;
+  esac
+}
+
 
 # ---------- Menu ----------
 menu() {
@@ -400,7 +504,8 @@ menu() {
     echo " 10) Cache"
     echo " 11) CI helper"
     echo " 12) Pass-through (args livres p/ gemini)"
-    echo " 13) Sair"
+    echo " 13) FZF Center (hist/auto/others/tpl/models)"
+    echo " 14) Sair"
     printf "> "
     read -r op
     case "$op" in
@@ -484,7 +589,18 @@ YML
         printf "gemini "; read -r rest
         gem_exec $rest
         ;;
-      13) exit 0 ;;
+      13)
+        echo "  a) history   b) automations   c) others   d) templates   e) models"
+        printf "> "; read -r z
+        case "$z" in
+          a) fzf_hist ;;
+          b) fzf_auto ;;
+          c) fzf_others ;;
+          d) fzf_tpl ;;
+          e) fzf_models ;;
+        esac
+        ;;
+      14) exit 0 ;;
     esac
   done
 }
@@ -511,6 +627,9 @@ Comandos principais:
   passthrough -- ...           Encaminha tudo ao binário
   help                         Ajuda
 
+Flags globais:
+  --dry-run                    Não executa; apenas imprime o comando repassado ao CLI
+
 Opções gen/vision comuns:
   --prompt "..." | --prompt-file F | --editor
   --model NAME
@@ -521,11 +640,12 @@ HLP
 }
 
 # ---------- Parser simples ----------
-cmd="$1" 2>/dev/null || cmd="menu"
+DRY=\"\"; for a in \"$@\"; do [ \"$a\" = \"--dry-run\" ] && DRY=1; done; [ -n \"$DRY\" ] && export GEMX_DRYRUN=1
+cmd=\"$1\" 2>/div/null || cmd=\"menu\"
 
 init_cfg; check_deps || true
 
-case "$cmd" in
+case \"$cmd\" in
   help|-h|--help) usage ;;
   menu) menu ;;
   setup) check_deps; ensure_bin ;;

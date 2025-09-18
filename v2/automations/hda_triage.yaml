@@ -1,0 +1,16 @@
+name: hda_triage
+model: gemini-2.5-pro
+temperature: 0.1
+prompt: |
+  Elabore protocolo de Hemorragia Digestiva Alta (HDA) para UPA:
+  1) Sinais de alarme e instabilidade (indicadores de choque/ressuscitação)
+  2) Estratificação: Glasgow-Blatchford e Rockall (quando/como usar)
+  3) Farmacoterapia inicial (IBP EV; terlipressina/octreotide em suspeita de varizes; antibiótico profilático em varizes)
+     • Para cada fármaco: Apresentação; Diluição; Posologia; Administração; Concentração final; Contraindicações; Interações; Efeitos colaterais; Outras infos
+  4) Transfusão (limitações locais): thresholds e alternativas práticas
+  5) Indicações de endoscopia e prazos
+  6) Critérios de transferência
+  7) Fluxo resumido em bullets e checklist de 1 minuto
+extra_args:
+  - --max-output-tokens
+  - "3072"

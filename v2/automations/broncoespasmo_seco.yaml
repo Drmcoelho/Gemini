@@ -1,0 +1,17 @@
+name: broncoespasmo_seco
+model: gemini-2.5-pro
+temperature: 0.15
+prompt: |
+  Manejo de broncoespasmo grave em período de seca (adulto):
+  1) Avaliação de gravidade (fala entrecortada, uso de musculatura acessória, SpO2, PEF se houver)
+  2) Nebulização/pMDI com espaçador: esquema prático (salbutamol/ipratrópio)
+  3) Corticoide sistêmico (doses e tempo)
+  4) Sulfato de magnésio EV (se criteria)
+  5) Terbutalina EV/SC (quando, como, monitorização)
+  6) Oxigenoterapia e alvo de saturação
+  7) Não-resposta: critérios de intubação e VM protetora em asma
+  8) Itens RX/condutas e alta segura
+  • Para cada fármaco entregue: Apresentação; Diluição; Posologia; Administração; Concentração final; Contraindicações; Interações; Efeitos colaterais; Outras infos.
+extra_args:
+  - --max-output-tokens
+  - "3072"
