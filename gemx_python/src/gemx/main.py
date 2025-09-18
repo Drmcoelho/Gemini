@@ -1,12 +1,21 @@
 import subprocess
 import typer
 from rich.console import Console
+from typing_extensions import Annotated
 
-app = typer.Typer()
+from . import config
+from . import others
+
+# --- App Setup ---
+app = typer.Typer(help="O sucessor do gemx.sh, em Python.")
 console = Console()
 
+profile_app = typer.Typer(name="profile", help="Gerencia os perfis de configuração.")
+app.add_typer(profile_app)
+
+# --- Helper Functions ---
 def find_gemini_binary():
-    # Simple version of resolve_bin from the shell script
+    """Encontra o binário 'gemini' ou 'gmini' no PATH."""
     for binary in ["gemini", "gmini"]:
         try:
             subprocess.run(["which", binary], check=True, capture_output=True)
@@ -15,24 +24,60 @@ def find_gemini_binary():
             continue
     return None
 
+# --- CLI Commands ---
 @app.command()
 def setup():
-    """Verifica dependências e o binário do Gemini."""
-    console.print("[bold cyan]Verificando dependências...[/bold cyan]")
+    """Verifica dependências, o binário e a configuração do Gemini."""
+    console.print("[bold cyan]Verificando ambiente gemx...[/bold cyan]")
     
-    jq_found = False
+    # 1. Check dependencies
     try:
         subprocess.run(["which", "jq"], check=True, capture_output=True)
-        jq_found = True
-        console.print("[green]✓[/green] jq encontrado.")
+        console.print("[green]✓[/green] Dependência 'jq' encontrada.")
     except (subprocess.CalledProcessError, FileNotFoundError):
-        console.print("[red]✗[/red] jq não encontrado. Por favor, instale-o.")
+        console.print("[red]✗[/red] Dependência 'jq' não encontrada. Por favor, instale-a.")
 
+    # 2. Check gemini binary
     gemini_bin = find_gemini_binary()
     if gemini_bin:
         console.print(f"[green]✓[/green] Binário do Gemini encontrado: [bold]{gemini_bin}[/bold]")
     else:
         console.print("[red]✗[/red] Nenhum binário ('gemini' or 'gmini') encontrado no PATH.")
+
+    # 3. Check config file and show default model
+    conf = config.get_config_file_content()
+    if not conf:
+        console.print(f"[yellow]Aviso:[/yellow] Arquivo de configuração não encontrado ou inválido em [dim]{config.CONFIG_PATH}[/dim]")
+    else:
+        console.print(f"[green]✓[/green] Arquivo de configuração carregado.")
+        console.print(f"  [cyan]↳ Modelo padrão no estado:[/cyan] [bold]{config.STATE.model}[/bold]")
+
+@app.command()
+def gen(prompt: Annotated[str, typer.Argument(help="O prompt para o modelo.")]):
+    """Gera uma resposta a partir de um prompt usando as configurações atuais."""
+    gemini_bin = find_gemini_binary()
+    if not gemini_bin:
+        console.print("[red]Erro:[/red] Binário do Gemini não encontrado.")
+        raise typer.Exit(1)
+
+    args = [
+        gemini_bin,
+        "generate",
+        "--model", config.STATE.model,
+        "--temperature", str(config.STATE.temperature),
+        "--prompt", prompt,
+    ]
+    if config.STATE.system:
+        args.extend(["--system", config.STATE.system])
+
+    console.print(f"[cyan]Executando com o modelo [bold]{config.STATE.model}[/bold] (temp: {config.STATE.temperature})...[/cyan]")
+    
+    try:
+        # Usamos passthrough para que a saída (incluindo streaming) vá direto para o terminal do usuário
+        subprocess.run(args)
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        console.print(f"[red]Falha ao executar o comando do Gemini:[/red]\n{e}")
+        raise typer.Exit(1)
 
 @app.command(name="models")
 def list_models():
@@ -44,7 +89,6 @@ def list_models():
     
     console.print(f"[cyan]Executando: [bold]{gemini_bin} model list[/bold][/cyan]")
     
-    # Tenta 'model list' e depois 'models' como fallback
     try:
         result = subprocess.run([gemini_bin, "model", "list"], capture_output=True, text=True)
         if result.returncode != 0:
@@ -57,6 +101,32 @@ def list_models():
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
         console.print(f"[red]Falha ao executar o comando do Gemini:[/red]\n{e}")
         raise typer.Exit(1)
+
+@app.command()
+def others_menu():
+    """Mostra o catálogo de ações, extensões e recursos."""
+    others.show_others_menu()
+
+@profile_app.command()
+def apply(profile_name: str):
+    """Carrega e aplica um perfil do arquivo de configuração ao estado atual."""
+    console.print(f"[cyan]Tentando aplicar o perfil '[bold]{profile_name}[/bold]'...[/cyan]")
+    success = config.apply_profile(profile_name)
+    
+    if not success:
+        console.print(f"[red]Erro:[/red] Perfil '[bold]{profile_name}[/bold]' não encontrado.")
+        raise typer.Exit(1)
+    
+    console.print("[green]✓[/green] Perfil aplicado com sucesso ao estado da sessão.")
+    console.print(f"  [cyan]↳ Modelo no estado:[/cyan] [bold]{config.STATE.model}[/bold]")
+    console.print(f"  [cyan]↳ Temperatura no estado:[/cyan] {config.STATE.temperature}")
+    console.print(f"  [cyan]↳ System prompt no estado:[/cyan] '{config.STATE.system}'")
+
+# --- Inicialização ---
+@app.callback()
+def main_callback():
+    """Carrega a configuração inicial antes de executar qualquer comando."""
+    config.load_and_init_state()
 
 if __name__ == "__main__":
     app()
