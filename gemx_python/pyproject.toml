@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "gemx"
+version = "0.1.0"
+description = "O sucessor do gemx.sh, em Python."
+authors = ["Seu Nome <voce@example.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+typer = {extras = ["all"], version = "^0.9.0"}
+rich = "^13.3.5"
+shellingham = "^1.5.0"
+
+[tool.poetry.scripts]
+gemx = "gemx.main:app"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
