@@ -122,6 +122,12 @@ EOT
 # ---------- Core: chamar o binário ----------
 gem_exec() { ensure_bin || return 127; "$GEMX_BIN" "$@"; }
 
+# Verifica se o binário suporta um subcomando (heurística via --help)
+supports_subcmd() {
+  ensure_bin || return 1
+  "$GEMX_BIN" --help 2>/dev/null | grep -qE "(^|[[:space:]])$1([[:space:]]|$)"
+}
+
 # One-shot generate (com sistema/temperatura/modelo/imagens)
 gem_gen() {
   # $1 prompt, $2 model, $3 temp, $4 system, imagens extras em "$@"
@@ -135,14 +141,24 @@ gem_gen() {
     model="$GEMX_FORCE_MODEL"
   fi
 
-  local args=( generate --model "$model" --temperature "$temp" --prompt "$prompt" )
-  [ -n "$system" ] && [ "$system" != "null" ] && [ "$system" != "" ] && args+=( --system "$system" )
-
-  while [ $# -gt 0 ]; do
-    if [ -f "$1" ]; then args+=( --image "$1" ); shift; else break; fi
-  done
-  [ $# -gt 0 ] && args+=( "$@" )
-  gem_exec "${args[@]}"
+  if supports_subcmd generate; then
+    # CLI com subcomando 'generate'
+    local args=( generate --model "$model" --temperature "$temp" --prompt "$prompt" )
+    [ -n "$system" ] && [ "$system" != "null" ] && [ "$system" != "" ] && args+=( --system "$system" )
+    while [ $# -gt 0 ]; do
+      if [ -f "$1" ]; then args+=( --image "$1" ); shift; else break; fi
+    done
+    [ $# -gt 0 ] && args+=( "$@" )
+    gem_exec "${args[@]}"
+  else
+    # Fallback para o Gemini CLI (npm) que aceita -m/-p e não tem 'generate'
+    # Observação: este modo não suporta imagens nem --system explicitamente.
+    local args=( -m "$model" -p "$prompt" )
+    # temperatura e system não têm flags equivalentes estáveis; ignoramos aqui
+    # Passar quaisquer args extras após -- diretamente ao binário
+    [ $# -gt 0 ] && args+=( "$@" )
+    gem_exec "${args[@]}"
+  fi
 }
 
 # Chat interativo
@@ -255,9 +271,19 @@ others_menu() {
   if [ ! -f "$GEMX_OTHERS" ]; then
     warn "others.json não encontrado em $GEMX_OTHERS"; return 1
   fi
+  
+  local FILTER_TAG=""
+
   while true; do
+    local title_filter
+    if [ -n "$FILTER_TAG" ]; then 
+      title_filter="$(color 33 " (Filtro: $FILTER_TAG)")"
+    fi
+    
     echo
-    echo "$(color 35 '[OTHERS]') Catálogo v2:"
+    echo "$(color 35 '[OTHERS]') Catálogo v2$title_filter:"
+    echo "  F) Filtrar por tag (atual: ${FILTER_TAG:-nenhum})"
+    echo "-------------------------------------"
     echo "  1) Extensões (install)"
     echo "  2) Plugins (toggle)"
     echo "  3) Ações (run)"
@@ -265,30 +291,47 @@ others_menu() {
     echo "  5) Voltar"
     printf "> "
     read -r op
+    
+    op_lower=$(lower "$op")
+    if [ "$op_lower" = "f" ]; then
+      printf "Digite a tag para filtrar (Enter para limpar): "; read -r FILTER_TAG
+      continue
+    fi
+
     case "$op" in
       1)
         if ! need gh; then warn "GitHub CLI (gh) não instalado"; continue; fi
-        jq -r '.extensions[]? | "\(.id)\t\(.description)"' "$GEMX_OTHERS" | nl -ba
-        printf "Selecione # para instalar (Enter para voltar): "
-        read -r n; [ -z "$n" ] && continue
-        id="$(jq -r --argjson n "$n" '.extensions[$n-1].id' "$GEMX_OTHERS" 2>/dev/null)"
+        
+        local filter_expr
+        if [ -z "$FILTER_TAG" ]; then filter_expr=".extensions"; else filter_expr="[.extensions[] | select(.tags and (.tags | contains([\"$FILTER_TAG\"])))]"; fi
+
+        jq -r "$filter_expr | .[] | \"\(.id)\t\(.description)\"" "$GEMX_OTHERS" | nl -ba
+        printf "Selecione # para instalar (Enter para voltar): "; read -r n; [ -z "$n" ] && continue
+
+        id=$(jq -r --argjson n "$n" "$filter_expr | .[$n-1].id" "$GEMX_OTHERS" 2>/dev/null)
         [ -z "$id" ] || gh extension install "$id"
         ;;
       2)
-        jq -r '.plugins[]? | "\(.key)\t\(.description)"' "$GEMX_OTHERS" | nl -ba
-        printf "Selecione # para alternar plugin (Enter para voltar): "
-        read -r n; [ -z "$n" ] && continue
-        key="$(jq -r --argjson n "$n" '.plugins[$n-1].key' "$GEMX_OTHERS" 2>/dev/null)"
+        local filter_expr
+        if [ -z "$FILTER_TAG" ]; then filter_expr=".plugins"; else filter_expr="[.plugins[] | select(.tags and (.tags | contains([\"$FILTER_TAG\"])))]"; fi
+
+        jq -r "$filter_expr | .[] | \"\(.key)\t\(.description)\"" "$GEMX_OTHERS" | nl -ba
+        printf "Selecione # para alternar plugin (Enter para voltar): "; read -r n; [ -z "$n" ] && continue
+        
+        key=$(jq -r --argjson n "$n" "$filter_expr | .[$n-1].key" "$GEMX_OTHERS" 2>/dev/null)
         [ -z "$key" ] && continue
+        
         set_cfg ".plugins.$key = ( .plugins.$key | not )"
         echo "Plugin '$key' agora: $(get_cfg ".plugins.$key")"
         ;;
       3)
-        jq -r '.actions[]? | "\(.label)\t| \(.type) | tags: \(.tags | join(\", \"))"' "$GEMX_OTHERS" | nl -ba
-        printf "Selecione # para executar (Enter p/ voltar): "
-        read -r n; [ -z "$n" ] && continue
+        local filter_expr
+        if [ -z "$FILTER_TAG" ]; then filter_expr=".actions"; else filter_expr="[.actions[] | select(.tags and (.tags | contains([\"$FILTER_TAG\"])))]"; fi
+
+        jq -r "$filter_expr | .[] | \"\(.label)\t| \(.type) | tags: \(.tags | join(\", \"))\"" "$GEMX_OTHERS" | nl -ba
+        printf "Selecione # para executar (Enter p/ voltar): "; read -r n; [ -z "$n" ] && continue
         
-        action_json="$(jq -r --argjson n "$n" '.actions[$n-1]' "$GEMX_OTHERS" 2>/dev/null)"
+        action_json=$(jq -r --argjson n "$n" "$filter_expr | .[$n-1]" "$GEMX_OTHERS" 2>/dev/null)
         [ -z "$action_json" ] && { err "Ação inválida"; continue; }
 
         type="$(echo "$action_json" | jq -r '.type')"
@@ -302,13 +345,12 @@ others_menu() {
             ;;
           prompt)
             p="$(echo "$action_json" | jq -r '.prompt')"
-            # Handle dynamic content like git diff
             if echo "$p" | grep -q '$(git diff --staged)'; then
                 staged_diff="$(git diff --staged)"
                 if [ -z "$staged_diff" ]; then
                     warn "Nenhuma mudança no stage. O prompt pode ficar vazio."
                 fi
-                p="$(echo "$p" | sed "s|\\\$(git diff --staged)|$staged_diff|")"
+                p=$(echo "$p" | sed "s|\\\$(git diff --staged)|$staged_diff|")
             fi
             gem_gen "$p"
             ;;
@@ -326,13 +368,17 @@ others_menu() {
         esac
         ;;
       4)
-        jq -r '.resources[]? | "\(.description)\t| \(.url)"' "$GEMX_OTHERS" | nl -ba
-        printf "Selecione # para ver a URL (Enter para voltar): "
-        read -r n; [ -z "$n" ] && continue
-        url="$(jq -r --argjson n "$n" '.resources[$n-1].url' "$GEMX_OTHERS" 2>/dev/null)"
+        local filter_expr
+        if [ -z "$FILTER_TAG" ]; then filter_expr=".resources"; else filter_expr="[.resources[] | select(.tags and (.tags | contains([\"$FILTER_TAG\"])))]"; fi
+
+        jq -r "$filter_expr | .[] | \"\(.description)\t| \(.url)\"" "$GEMX_OTHERS" | nl -ba
+        printf "Selecione # para ver a URL (Enter para voltar): "; read -r n; [ -z "$n" ] && continue
+        
+        url=$(jq -r --argjson n "$n" "$filter_expr | .[$n-1].url" "$GEMX_OTHERS" 2>/dev/null)
         [ -n "$url" ] && info "URL: $url"
         ;;
       5) return 0 ;;
+      *) err "Opção inválida." ;;
     esac
   done
 }
@@ -475,7 +521,7 @@ HLP
 }
 
 # ---------- Parser simples ----------
-cmd="$1" 2>/div/null || cmd="menu"
+cmd="$1" 2>/dev/null || cmd="menu"
 
 init_cfg; check_deps || true
 
