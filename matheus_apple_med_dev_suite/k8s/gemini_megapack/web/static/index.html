@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gemini Megapack — Web</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto; max-width: 960px; margin: 24px auto; padding: 0 16px; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; margin: 16px 0; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+    textarea, input[type=text] { width: 100%; padding: 8px; font-family: ui-monospace, Menlo, Consolas, monospace; }
+    button { padding: 8px 12px; border-radius: 8px; border: 1px solid #ccc; background: #f5f5f5; cursor: pointer; }
+    pre { white-space: pre-wrap; background: #f7f7f7; padding: 8px; border-radius: 8px; }
+    .muted { color: #666 }
+  </style>
+</head>
+<body>
+  <h1>Gemini Megapack — Web</h1>
+
+  <div class="card">
+    <h2>Geração</h2>
+    <textarea id="prompt" rows="6" placeholder="Digite seu prompt..."></textarea>
+    <br><br>
+    <button onclick="gen()">Executar</button>
+    <pre id="genOut" class="muted">resultado aqui…</pre>
+  </div>
+
+  <div class="card">
+    <h2>Flows</h2>
+    <input id="flowPath" type="text" placeholder="flows/flow_example.yml" />
+    <button onclick="runFlow()">Rodar Flow</button>
+    <pre id="flowOut" class="muted">resultado aqui…</pre>
+  </div>
+
+  <div class="card">
+    <h2>Histórico</h2>
+    <button onclick="listHist()">Listar</button>
+    <pre id="histOut" class="muted">carregue…</pre>
+  </div>
+
+  <div class="card">
+    <h2>Audit (tail)</h2>
+    <button onclick="tailAudit()">Atualizar</button>
+    <pre id="auditOut" class="muted">carregue…</pre>
+  </div>
+
+<script>
+async function gen(){
+  const res = await fetch('/api/gen', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt: document.getElementById('prompt').value})});
+  const js = await res.json();
+  document.getElementById('genOut').textContent = res.ok ? js.stdout : JSON.stringify(js,null,2);
+}
+async function runFlow(){
+  const path = document.getElementById('flowPath').value || 'flows/flow_example.yml';
+  const res = await fetch('/api/flow', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({path})});
+  const js = await res.json();
+  document.getElementById('flowOut').textContent = res.ok ? js.stdout : JSON.stringify(js,null,2);
+}
+async function listHist(){
+  const res = await fetch('/api/history');
+  const js = await res.json();
+  document.getElementById('histOut').textContent = JSON.stringify(js, null, 2);
+}
+async function tailAudit(){
+  const res = await fetch('/api/audit/tail');
+  const js = await res.json();
+  document.getElementById('auditOut').textContent = js.lines ? js.lines.join('\n') : JSON.stringify(js, null, 2);
+}
+</script>
+</body>
+</html>

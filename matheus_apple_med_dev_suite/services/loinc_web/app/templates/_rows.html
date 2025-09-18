@@ -1,0 +1,10 @@
+{% for r in rows %}
+<tr>
+  <td><a href="/api/loinc/code/{{ r.code }}" target="_blank">{{ r.code }}</a></td>
+  <td>{{ r.long_name }}</td>
+  <td>{{ r.component }}</td>
+  <td>{{ r.property }}</td>
+  <td>{{ r.system }}</td>
+  <td>{{ r.class }}</td>
+</tr>
+{% endfor %}

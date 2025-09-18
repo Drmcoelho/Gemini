@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "gemx.fullname" . }}
+  labels: {{- include "gemx.labels" . | nindent 4 }}
+  annotations:
+    {{- if .Values.gke.neg }}
+    cloud.google.com/neg: 'true'
+    {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  selector: {{- include "gemx.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}

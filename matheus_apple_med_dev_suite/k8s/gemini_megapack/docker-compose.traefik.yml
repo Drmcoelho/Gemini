@@ -1,0 +1,34 @@
+version: "3.9"
+services:
+  traefik:
+    image: traefik:v3.0
+    command: ["--providers.docker=true","--providers.file.filename=/etc/traefik/dynamic.yml","--entrypoints.web.address=:80","--entrypoints.websecure.address=:443","--certificatesresolvers.letsencrypt.acme.email=${EMAIL:-admin@example.com}","--certificatesresolvers.letsencrypt.acme.storage=/acme/acme.json","--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - traefik_acme:/acme
+    restart: unless-stopped
+
+  gemx:
+    image: gemini-megapack:latest
+    environment:
+      - WEB_SECRET_KEY=${WEB_SECRET_KEY:-change-me}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      - OAUTH_CALLBACK_URL=${OAUTH_CALLBACK_URL:-}
+      - ALLOWED_EMAILS=${ALLOWED_EMAILS:-}
+      - ALLOWED_DOMAIN=${ALLOWED_DOMAIN:-}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gemx.rule=Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.gemx.entrypoints=web"
+      - "traefik.http.routers.gemx.middlewares=ratelimit,gzip"
+      - "traefik.http.services.gemx.loadbalancer.server.port=8080"
+    restart: unless-stopped
+
+volumes:
+  traefik_acme:

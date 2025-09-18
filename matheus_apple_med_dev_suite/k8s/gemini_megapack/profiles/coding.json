@@ -1,0 +1,11 @@
+{
+  "model": "gemini-2.5-pro",
+  "stream": true,
+  "templates": {
+    "arch": "Desenhe a arquitetura em passos, riscos, trade-offs e um diagrama ASCII.",
+    "refactor": "Proponha refatoração incremental com diffs fictícios."
+  },
+  "plugins": {
+    "safe_prompts": true
+  }
+}

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "loinc.fullname" . }}
+  labels: {{- include "loinc.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: {{ include "loinc.fullname" . }} }
+  template:
+    metadata:
+      labels: { app: {{ include "loinc.fullname" . }} }
+    spec:
+      containers:
+        - name: loinc-web
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports: [ { containerPort: {{ .Values.service.targetPort }} } ]
+          env:
+            - name: DB_PATH
+              value: {{ .Values.env.DB_PATH | quote }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "loinc.fullname" . }}-pvc

@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "triage",
+    "antibiotics",
+    "vasopressors",
+    "checklist"
+  ],
+  "properties": {
+    "triage": {
+      "type": "object"
+    },
+    "antibiotics": {
+      "type": "array"
+    },
+    "vasopressors": {
+      "type": "array"
+    },
+    "checklist": {
+      "type": "array"
+    }
+  }
+}

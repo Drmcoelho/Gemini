@@ -1,0 +1,7 @@
+.container{max-width:1200px;margin:24px auto;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+th,td{border:1px solid #ddd;padding:6px 8px}
+th{background:#f7f7f7;text-align:left}
+input,select,button{padding:6px 8px;margin-right:8px}
+.htmx-indicator{display:none;margin-left:4px}
+.htmx-request .htmx-indicator{display:inline}

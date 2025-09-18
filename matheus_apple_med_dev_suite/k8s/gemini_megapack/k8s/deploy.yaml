@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gemx
+  labels: { app: gemx }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: gemx }
+  template:
+    metadata:
+      labels: { app: gemx }
+    spec:
+      containers:
+        - name: gemx
+          image: ghcr.io/your-org/gemini-megapack:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: GEMX_FORCE_MODEL
+              value: "gemini-2.5-pro"
+            - name: WEB_USER
+              valueFrom:
+                secretKeyRef: { name: gemx-secrets, key: WEB_USER }
+            - name: WEB_PASS
+              valueFrom:
+                secretKeyRef: { name: gemx-secrets, key: WEB_PASS }
+            - name: NOTION_TOKEN
+              valueFrom:
+                secretKeyRef: { name: gemx-secrets, key: NOTION_TOKEN }
+            - name: NOTION_DATABASE_ID
+              valueFrom:
+                secretKeyRef: { name: gemx-secrets, key: NOTION_DATABASE_ID }
+          volumeMounts:
+            - name: config
+              mountPath: /home/app/.config/gemx
+            - name: automations
+              mountPath: /app/automations
+            - name: flows
+              mountPath: /app/flows
+            - name: kb
+              mountPath: /app/kb
+      volumes:
+        - name: config
+          persistentVolumeClaim: { claimName: gemx-pvc }
+        - name: automations
+          emptyDir: {}
+        - name: flows
+          configMap: { name: gemx-flows, optional: true }
+        - name: kb
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gemx
+  labels: { app: gemx }
+spec:
+  type: ClusterIP
+  selector: { app: gemx }
+  ports:
+    - port: 80
+      targetPort: 8080
+      name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gemx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  tls:
+    - hosts: [ "gemx.example.com" ]
+      secretName: gemx-tls
+  rules:
+    - host: gemx.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gemx
+                port: { number: 80 }

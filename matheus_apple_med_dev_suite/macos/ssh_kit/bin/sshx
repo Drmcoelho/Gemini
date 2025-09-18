@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+# sshx — FZF-based SSH launcher for macOS with fallbacks.
+set -euo pipefail
+
+FZF_BIN="${FZF_BIN:-fzf}"
+RECENT="$HOME/.ssh/.cache/sshx_recent"
+mkdir -p "$(dirname "$RECENT")"
+
+have(){ command -v "$1" >/dev/null 2>&1; }
+
+INV="${INV:-$HOME/.ssh/inventory/hosts.yml}"
+[ -f "$INV" ] || INV="$PWD/inventory/hosts.yml"
+
+load_inventory(){
+  if have yq; then
+    yq '.hosts' "$INV" 1>/dev/null 2>&1 || return 1
+    return 0
+  else
+    return 1
+  fi
+}
+
+list_from_inventory(){
+  local filter="$1" value="$2"
+  have yq || return 1
+  case "$filter" in
+    tag)
+      yq -r '.hosts | to_entries[] | select(.value.tags[]? == "'$value'") | .key' "$INV"
+      ;;
+    role)
+      yq -r '.hosts | to_entries[] | select(.value.roles[]? == "'$value'") | .key' "$INV"
+      ;;
+    group)
+      yq -r '.groups."'$value'"[]?' "$INV"
+      ;;
+    all)
+      yq -r '.hosts | keys[]' "$INV"
+      ;;
+  esac
+}
+
+host_to_ssh_args(){
+  # echo "-l user -i identity -p port hostname"
+  local h="$1"
+  have yq || { echo ""; return; }
+  local base=".hosts.\"$h\""
+  local user=$(yq -r "$base.user // empty" "$INV")
+  local ident=$(yq -r "$base.identity // empty" "$INV")
+  local host=$(yq -r "$base.hostname // empty" "$INV")
+  local port=$(yq -r "$base.port // empty" "$INV")
+  local args=""
+  [ -n "$user" ] && args="$args -l $user"
+  [ -n "$ident" ] && args="$args -i ${ident/#\~/$HOME}"
+  [ -n "$port" ] && args="$args -p $port"
+  [ -n "$host" ] && args="$args $host" || args="$args $h"
+  printf "%s" "$args"
+}
+
+
+list_hosts(){
+  # 1) parse config Hosts (excluding wildcard *)
+  { grep -hE '^Host\s+' "$HOME/.ssh/config" "$HOME/.ssh/config.d/"*.conf 2>/dev/null || true; } \
+    | awk '{$1=""; sub(/^ /,""); print}' \
+    | tr ' ' '\n' \
+    | grep -v '^\*$' \
+    | sed '/^\s*$/d' \
+    | awk '!seen[$0]++'
+  # 2) known_hosts (first column before comma/space)
+  if [ -f "$HOME/.ssh/known_hosts" ]; then
+    cut -d' ' -f1 "$HOME/.ssh/known_hosts" | tr ',' '\n' | sed 's/^\[//; s/\]$//' \
+      | grep -E '^[a-zA-Z0-9\.\-]+' | awk '!seen[$0]++'
+  fi
+}
+
+pick_host(){
+  if have "$FZF_BIN"; then
+    { [ -f "$RECENT" ] && tac "$RECENT" || true; list_hosts; } | awk '!seen[$0]++' | "$FZF_BIN" --height=40% --reverse --prompt="ssh> "
+  else
+    echo "[WARN] fzf não encontrado; usando /bin/ls + select."
+    select h in $(list_hosts); do echo "$h"; break; done
+  fi
+}
+
+usage(){
+  cat <<HLP
+Uso: sshx [host|--tag t1[,t2]|--role r|--group g] [-- comando-remoto]
+      sshx -L [lport]:[rhost]:[rport] [host]   # túnel local
+      sshx -A [host]                           # forward agent
+Sem host: abre um seletor (fzf) com históricos.
+HLP
+}
+
+OPTS=()
+HOST=""
+CMD=()
+FILTER=""; FVAL=""; TAGS=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help) usage; exit 0;;
+    --tag) FILTER=tag; FVAL="$2"; shift 2;;
+    --role) FILTER=role; FVAL="$2"; shift 2;;
+    --group) FILTER=group; FVAL="$2"; shift 2;;
+    -A) OPTS+=("-A"); shift;;
+    -L) OPTS+=("-L" "$2"); shift 2;;
+    --) shift; CMD=("$@"); break;;
+    -*) OPTS+=("$1"); shift;;
+    *) HOST="$1"; shift; break;;
+  esac
+done
+
+if [ -z "$HOST" ]; then
+  if [ -n "$FILTER" ] && [ -n "$FVAL" ] && load_inventory; then
+    mapfile -t CANDS < <(list_from_inventory "$FILTER" "$FVAL")
+    if [ "${#CANDS[@]}" -gt 1 ]; then
+      if have "$FZF_BIN"; then
+        HOST="$(printf "%s\n" "${CANDS[@]}" | "$FZF_BIN" --height=40% --reverse --prompt="ssh[$FILTER=$FVAL]> ")"
+      else
+        select h in "${CANDS[@]}"; do HOST="$h"; break; done
+      fi
+    else
+      HOST="${CANDS[0]}"
+    fi
+  else
+    HOST="$(pick_host)"
+  fi
+fi
+[ -n "$HOST" ] || { echo "[ERR] nenhum host selecionado"; exit 1; }
+
+echo "$HOST" >> "$RECENT"
+
+EXTRA_ARGS="$(host_to_ssh_args "$HOST")"
+if [ ${#CMD[@]} -gt 0 ]; then
+  eval exec ssh "${OPTS[@]}" $EXTRA_ARGS -- "${CMD[@]}"
+else
+  eval exec ssh "${OPTS[@]}" $EXTRA_ARGS
+fi

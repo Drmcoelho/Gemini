@@ -1,0 +1,16 @@
+{
+  "ACLs": [
+    {
+      "Action": "accept",
+      "Users": ["group:clinicians"],
+      "Ports": ["clinic-vm:22", "zt-db:22", "clinic-vm:5432"]
+    }
+  ],
+  "Groups": {
+    "clinicians": ["matheus@example.com"]
+  },
+  "TagOwners": {
+    "tag:db": ["group:clinicians"]
+  },
+  "DERPMap": { "Regions": {} }
+}

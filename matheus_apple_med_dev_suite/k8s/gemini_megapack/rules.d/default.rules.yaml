@@ -1,0 +1,8 @@
+# rules.d/default.rules.yaml — Mini-regra pré-prompt
+# Aplicadas se plugins.safe_prompts = true
+deny:
+  - pattern: '(?i)\bDROP\s+TABLE\b'
+    reason: "Possível SQL destrutivo."
+  - pattern: '(?i)\bshutdown\s+-h\b'
+    reason: "Comando perigoso."
+allow: []

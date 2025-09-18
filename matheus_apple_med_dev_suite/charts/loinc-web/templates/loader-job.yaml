@@ -1,0 +1,24 @@
+{{- if .Values.loader.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "loinc.fullname" . }}-loader
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: loader
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command: ["python","/usr/local/bin/loinc_import.py","--csv","{{ .Values.loader.csvPath }}","--db","/data/loinc.sqlite"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: seed
+              mountPath: /seed
+      volumes:
+        - name: data
+          persistentVolumeClaim: { claimName: {{ include "loinc.fullname" . }}-pvc }
+        - name: seed
+          emptyDir: {}
+{{- end }}

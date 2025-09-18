@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gemx-with-fluentbit
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: gemx-with-fluentbit } }
+  template:
+    metadata:
+      labels: { app: gemx-with-fluentbit }
+    spec:
+      containers:
+        - name: gemx
+          image: ghcr.io/your-org/gemini-megapack:latest
+          env:
+            - name: GEMX_FORCE_MODEL
+              value: "gemini-2.5-pro"
+          volumeMounts:
+            - name: config
+              mountPath: /home/app/.config/gemx
+        - name: fluent-bit
+          image: cr.fluentbit.io/fluent/fluent-bit:3.0
+          volumeMounts:
+            - name: config
+              mountPath: /home/app/.config/gemx
+          args:
+            - -i
+            - tail
+            - -p
+            - path=/home/app/.config/gemx/logs/*.jsonl
+            - -o
+            - stdout
+      volumes:
+        - name: config
+          emptyDir: {}

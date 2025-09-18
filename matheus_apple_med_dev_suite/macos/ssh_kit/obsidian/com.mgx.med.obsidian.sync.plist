@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.mgx.med.obsidian.sync</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>-lc</string>
+    <string>PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin FHIR_BASE=${FHIR_BASE} PATIENT_ID=${PATIENT_ID} OB_VAULT=${OB_VAULT} med obsidian patient --base "$FHIR_BASE" --pid "$PATIENT_ID" --vault "$OB_VAULT"</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key><integer>3</integer>
+    <key>Minute</key><integer>0</integer>
+  </dict>
+  <key>StandardOutPath</key><string>${HOME}/Library/Logs/med-obsidian.log</string>
+  <key>StandardErrorPath</key><string>${HOME}/Library/Logs/med-obsidian.err</string>
+</dict>
+</plist>

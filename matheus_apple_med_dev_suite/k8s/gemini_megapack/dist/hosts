@@ -1,0 +1,6 @@
+# dist/hosts (um por linha). Use user@host ou só host (usa $USER).
+# Pode incluir porta após ":" (ex.: user@host:2222).
+# Ex.: 
+# medico1@10.0.0.11
+# medico2.local
+# ubuntu@198.51.100.23:2222

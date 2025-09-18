@@ -1,0 +1,83 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/your-org/gemini-megapack
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: gemx.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: gemx-tls
+      hosts: [ gemx.example.com ]
+
+persistence:
+  enabled: true
+  accessModes: [ "ReadWriteOnce" ]
+  size: 5Gi
+
+oauth:
+  enabled: true
+  googleClientId: ""
+  googleClientSecret: ""
+  callbackUrl: ""
+  allowedEmails: ""
+  allowedDomain: ""
+
+basicAuth:
+  enabled: false
+  user: ""
+  pass: ""
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+sidecar:
+  vector:
+    enabled: false
+    image: timberio/vector:0.38.0-debian
+    lokiUrl: ""
+  fluentbit:
+    enabled: false
+    image: cr.fluentbit.io/fluent/fluent-bit:3.0
+    esHost: ""
+    esPort: 9200
+
+
+gke:
+  neg: true                # anota Service para NEG (container-native LB)
+
+traefik:
+  enabled: false
+  ports:
+    web:
+      expose: true
+      port: 80
+    websecure:
+      expose: true
+      port: 443
+  tls:
+    stores: {}
+  ingressRoute:
+    dashboard:
+      enabled: false
+  additionalArguments:
+    - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+    - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+  persistence:
+    enabled: false
+  pilot:
+    enabled: false

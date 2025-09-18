@@ -1,0 +1,1002 @@
+[
+  {
+    "path": "Makefile",
+    "size": 1387,
+    "sha256": "5df806c09fe9022af41cc08a4ee19ad2e836ac324a3c219af8334a5ad2a943f7"
+  },
+  {
+    "path": "README.md",
+    "size": 993,
+    "sha256": "31e16083bc8dd951b68debe399e633b919f3ee313f9b9e300c04c88029d667b9"
+  },
+  {
+    "path": "macos/ssh_kit/Makefile",
+    "size": 290,
+    "sha256": "3d83f74703bdd15f5f515783bd5fdc6778b47c84dad0f547d87128e0dbf54900"
+  },
+  {
+    "path": "macos/ssh_kit/bin/sshx",
+    "size": 3830,
+    "sha256": "54cef33bbf703a07a9bb8858f229775adece6a3393cb2ff863260257987bc60c"
+  },
+  {
+    "path": "macos/ssh_kit/bin/ssh-tunnel",
+    "size": 917,
+    "sha256": "2bb4f833eb96d846acacaad3dfab7fffe1d6b1e4e2eabac34b0053ba58ef64e2"
+  },
+  {
+    "path": "macos/ssh_kit/docs/README.md",
+    "size": 1510,
+    "sha256": "a02323af955d30edaa36bcc122d87efdc68a3bde0543526c63896e28bd001ab2"
+  },
+  {
+    "path": "macos/ssh_kit/docs/SECURITY.md",
+    "size": 491,
+    "sha256": "990cfff304df5006f2a7faa2fb352794b0e656963b18deb8772dc72017a5f596"
+  },
+  {
+    "path": "macos/ssh_kit/docs/TROUBLESHOOTING.md",
+    "size": 707,
+    "sha256": "bcc4c66e8c28f6397a63b5ec49ac894fdf50e68293389395e329f216d4f332d6"
+  },
+  {
+    "path": "macos/ssh_kit/docs/README_PRO.md",
+    "size": 2165,
+    "sha256": "fa5ed7a5f93fd38cc0d6974c716d7acb5e59151e4e58f05f108e26f416ad33f1"
+  },
+  {
+    "path": "macos/ssh_kit/docs/README_MED_PRO.md",
+    "size": 1046,
+    "sha256": "31bb1e4e42326f035aa3a5b0493f86b2c9b721eeddc3f476f6fc11f13c831ddd"
+  },
+  {
+    "path": "macos/ssh_kit/docs/README_MAX.md",
+    "size": 1210,
+    "sha256": "0a0c2c2737f75ce2ae1ab94183b28fec5f78ae15c1a81f6f290feab46d225788"
+  },
+  {
+    "path": "macos/ssh_kit/hammerspoon/init.lua",
+    "size": 1838,
+    "sha256": "04e2682a5e442131987547fb15a969c7cd8c00a82b2fcd2add7ab0f9dc5241a5"
+  },
+  {
+    "path": "macos/ssh_kit/hammerspoon/README.md",
+    "size": 394,
+    "sha256": "87de7e662aacdbee9923c0f30ce2fcb0d2116d7d8184f28663dbcee0300d615c"
+  },
+  {
+    "path": "macos/ssh_kit/inventory/hosts.yml",
+    "size": 580,
+    "sha256": "e90982244891b0e9f5a2e7a080f1502864e0121126b2e249ba2444d6ec34fc48"
+  },
+  {
+    "path": "macos/ssh_kit/launchagents/com.mgx.ssh.tunnel.sample.plist",
+    "size": 779,
+    "sha256": "4675b1ee2f3402e102a4b3deabbb806fb5c4bab11f55174abdae8654d34dd85a"
+  },
+  {
+    "path": "macos/ssh_kit/launchagents/install_tunnel_agent.sh",
+    "size": 966,
+    "sha256": "6f1bc74e48ca9fd4aef8124cc67378eae84c3ec5c15ea8a56658827df6d76702"
+  },
+  {
+    "path": "macos/ssh_kit/medcli/pyproject.toml",
+    "size": 575,
+    "sha256": "183c13e3919d90945af88ac2200fe624aee45d6008fa3d1cd42e284b5913e83c"
+  },
+  {
+    "path": "macos/ssh_kit/medcli/README_MEDCLI.md",
+    "size": 712,
+    "sha256": "a86fe132e9c6e8b886fb80ef923cf108fd0162852adbb0f20f227a5977742516"
+  },
+  {
+    "path": "macos/ssh_kit/medcli/medcli/__init__.py",
+    "size": 88,
+    "sha256": "1b31271e2e4eaa27ab0fa8c58d96fcf3fe62b18b5f69e6faaa473540b697f1fc"
+  },
+  {
+    "path": "macos/ssh_kit/medcli/medcli/__main__.py",
+    "size": 598,
+    "sha256": "e12a7e179aa8ac4faa4b1015d8c71bdadb483ad85863fa847cf3cc1de195ee28"
+  },
+  {
+    "path": "macos/ssh_kit/medcli/medcli/fhir.py",
+    "size": 865,
+    "sha256": "44a85bcce6d13b263524331b21b3ca0944ffbc87459d626ba1f1f2912628fc58"
+  },
+  {
+    "path": "macos/ssh_kit/medcli/medcli/openfda.py",
+    "size": 545,
+    "sha256": "23bac02accca62a65ab319035a197270bb978f940197a8db73266be1d80133f5"
+  },
+  {
+    "path": "macos/ssh_kit/medcli/medcli/rxnorm.py",
+    "size": 758,
+    "sha256": "5c90ff0b03b0c3adb49fb44a69a53ff57675dc9614875186f4019981355c068e"
+  },
+  {
+    "path": "macos/ssh_kit/medcli/medcli/ctgov.py",
+    "size": 393,
+    "sha256": "4a4bbd44d7b5c0bd5b064e0c4ccb9832356293908cd88ff0dd1c854c8f355e53"
+  },
+  {
+    "path": "macos/ssh_kit/medcli/medcli/card.py",
+    "size": 1941,
+    "sha256": "a4bc328fdbe21fcf330a79d182ea3e37eb8d40f2be36317e611c69fc18970c82"
+  },
+  {
+    "path": "macos/ssh_kit/medcli/medcli/obsidian.py",
+    "size": 3953,
+    "sha256": "266cd5e40861344705dc7a52b9099f42e13781333ee021f6aab295c2c6ebf946"
+  },
+  {
+    "path": "macos/ssh_kit/medcli/medcli/dicts.py",
+    "size": 3446,
+    "sha256": "022cf16d69fcda8ee267cf11657e9fe891425e4cd4ce988ff2bde68336034d64"
+  },
+  {
+    "path": "macos/ssh_kit/medcli/medcli/plots.py",
+    "size": 2395,
+    "sha256": "fe8573fbb3ae93adfc4235ebce951ea294b10791f2bc3a1bdf19a97d6195491d"
+  },
+  {
+    "path": "macos/ssh_kit/medcli/medcli/mdfhir.py",
+    "size": 3797,
+    "sha256": "6fdadfd081bb2875a41ab5570f5ea0cabdf2953c3b14f41b29b6c902a05f14f4"
+  },
+  {
+    "path": "macos/ssh_kit/medical/README.md",
+    "size": 1663,
+    "sha256": "a88c40cbbf883ab11737e656d6918e13975a3cc2c4a26ad8f6e7141d337b84f6"
+  },
+  {
+    "path": "macos/ssh_kit/medical/clinicaltrials/ctgov_cli.sh",
+    "size": 321,
+    "sha256": "c4bb5588ac69da37da589c1ae7bac69c1b1281bed1788823f9910d52015e0b2e"
+  },
+  {
+    "path": "macos/ssh_kit/medical/cron/refresh_ctgov.sh",
+    "size": 484,
+    "sha256": "289a4e417874fa4be6eddb8a047533b3cdc8bfd4922feadf2ea77a1ef067fcfa"
+  },
+  {
+    "path": "macos/ssh_kit/medical/cron/com.mgx.med.ctgov.refresh.plist",
+    "size": 779,
+    "sha256": "d07ab08b1d24bece7511f0dafa7896ad2e1b4a86f445f4f71b82dbf5ee635de3"
+  },
+  {
+    "path": "macos/ssh_kit/medical/cron/install_refresh.sh",
+    "size": 542,
+    "sha256": "7e73678e3b57727083c4933bc9be5e738f63c0a7d4c0732eb111cbea3bdbe574"
+  },
+  {
+    "path": "macos/ssh_kit/medical/fhir/fhir_cli.sh",
+    "size": 366,
+    "sha256": "60bea6b307c7c0dc33706132743c3499703bf8966e9e0296052aa78846e264e8"
+  },
+  {
+    "path": "macos/ssh_kit/medical/openfda/openfda_drug.sh",
+    "size": 452,
+    "sha256": "aa6a6fdce3681bde0a3ed59e3b16ccbe117b5ebbef56127798ffb5a528cf3698"
+  },
+  {
+    "path": "macos/ssh_kit/medical/rxnorm/rxnorm_cli.sh",
+    "size": 779,
+    "sha256": "468b48b39ce5679002ff8cb4bd5a3d8a1c53eb8f785855595b905f8fff18af09"
+  },
+  {
+    "path": "macos/ssh_kit/obsidian/obsidian_sync.sh",
+    "size": 293,
+    "sha256": "ae90a355a5658077163a5a8918714d44b312039db4f1d0f76cf1b720b2ca9e24"
+  },
+  {
+    "path": "macos/ssh_kit/obsidian/com.mgx.med.obsidian.sync.plist",
+    "size": 892,
+    "sha256": "d316415244b70dc54dbcb22cf35ad3e678c6d7a1e033be929642954e308a0d23"
+  },
+  {
+    "path": "macos/ssh_kit/obsidian/install_obsidian_sync.sh",
+    "size": 393,
+    "sha256": "d7406c9663b3b1e34817c20a6ce8679cba7ad0450af25c1a03042f35ae993609"
+  },
+  {
+    "path": "macos/ssh_kit/obsidian/embed_plot.sh",
+    "size": 458,
+    "sha256": "dd400990590e6c18afc4e41f88df296bcc581537c84d390ae6ffa777ddada9e4"
+  },
+  {
+    "path": "macos/ssh_kit/pam/touchid/README.md",
+    "size": 397,
+    "sha256": "95f6e8fc25248d408036c665e0c7cbd320df01955d3609c49c40c7d16cbd476d"
+  },
+  {
+    "path": "macos/ssh_kit/provision/provision_macos.sh",
+    "size": 1360,
+    "sha256": "a8e6f263120b5e8155a7352fc32b3a2f756ecd673d704ba56ff42ea48261de97"
+  },
+  {
+    "path": "macos/ssh_kit/scripts/macos_ssh_bootstrap.sh",
+    "size": 1672,
+    "sha256": "6e83910315128bdb6a41b661bf2b4f90bb851af0eb505c0e0e18be52d7021fcc"
+  },
+  {
+    "path": "macos/ssh_kit/scripts/generate_ed25519.sh",
+    "size": 775,
+    "sha256": "e93a80d97c079678028fa11ed55ddee57009266aaf3381cf685549d8c6e0a776"
+  },
+  {
+    "path": "macos/ssh_kit/scripts/generate_fido2.sh",
+    "size": 880,
+    "sha256": "a7167b8c4ff90247c1b707a3100111aae8cf06ad272f204c9b0ea803f5c51414"
+  },
+  {
+    "path": "macos/ssh_kit/scripts/enable_sshd_macos.sh",
+    "size": 789,
+    "sha256": "748e2a8c9d80b6389f5e2cef5c11adc98ced261a36d501758873bbccec68c876"
+  },
+  {
+    "path": "macos/ssh_kit/scripts/harden_sshd_macos.sh",
+    "size": 974,
+    "sha256": "9e6848bc4b55cec18a20cb97fa056874b344fbf1b6b29ba39ee2142888752099"
+  },
+  {
+    "path": "macos/ssh_kit/scripts/ssh_copy_id.sh",
+    "size": 545,
+    "sha256": "e19c343079dd9f339f441dfdd362abc95409fa5dbb08faff73b39539c06d4c27"
+  },
+  {
+    "path": "macos/ssh_kit/scripts/test_ssh_fido2.sh",
+    "size": 330,
+    "sha256": "a2ae4a1b3414d8ee4ce967573b96964a26fcaa4d5d261b8faf259d2b5d751c9a"
+  },
+  {
+    "path": "macos/ssh_kit/shell/.zshrc.sshx",
+    "size": 488,
+    "sha256": "54af65394ee10e776edca2df9f512c22205de21944d15b1da5a72e017a9c8a34"
+  },
+  {
+    "path": "macos/ssh_kit/shortcuts/README.md",
+    "size": 401,
+    "sha256": "f2b29ba428e4a0ddc4efd294f8da8a6d36025f4273dc9833f0b17598f5f7a0a6"
+  },
+  {
+    "path": "macos/ssh_kit/shortcuts/run_shortcut.sh",
+    "size": 241,
+    "sha256": "ce1168068911f18a2f72b928e68ce1bcddef775624f50a08b114099a43c74e65"
+  },
+  {
+    "path": "macos/ssh_kit/shortcuts/DrugCard.applescript",
+    "size": 660,
+    "sha256": "8fa06db9ac7079ef7a33ef41793e6e594f129004f48fceb7b038d8772b95bdac"
+  },
+  {
+    "path": "macos/ssh_kit/shortcuts/README_DrugCard.md",
+    "size": 413,
+    "sha256": "72fd6ca949cec7840158d70e73ce5be3980acfd08311c59b9e843ab8fa1b2a92"
+  },
+  {
+    "path": "macos/ssh_kit/ssh/config",
+    "size": 115,
+    "sha256": "ae765747f2ffa2c223ea8ed583fb85221db36848696184471d56faba9325f7b4"
+  },
+  {
+    "path": "macos/ssh_kit/ssh/config.d/00-global.conf",
+    "size": 270,
+    "sha256": "c25debdf1974f9c7772a3c8685d63ddadba736439bcae9d8b8c08469be4b76f0"
+  },
+  {
+    "path": "macos/ssh_kit/ssh/config.d/10-github.conf",
+    "size": 136,
+    "sha256": "f7f3e1b35dca37b5912f76ad20c87da68c0c6ed828700021bbf2b491a528b2dd"
+  },
+  {
+    "path": "macos/ssh_kit/ssh/config.d/20-examples.conf",
+    "size": 385,
+    "sha256": "7826e01a24befa94b0400c2f7217b83a4258e7f98a53a8ff59633c3eff0d9d58"
+  },
+  {
+    "path": "macos/ssh_kit/ssh/config.d/30-vpn.conf",
+    "size": 396,
+    "sha256": "d2deda2134b03b595be3a48b3855026a413ac5ad4b869ba0d7b9f2c3de607f5e"
+  },
+  {
+    "path": "macos/ssh_kit/swift/MedPanel/MedPanel.swift",
+    "size": 1852,
+    "sha256": "4d384ff23ba3a2b4ef03b945fbe853b85281df1a900c2fb7ccc48f3d8800c554"
+  },
+  {
+    "path": "macos/ssh_kit/swift/MedPanel/build.sh",
+    "size": 216,
+    "sha256": "fbcea705c547ac0790e50fc38bae6f08cddcc727cfcf0f4786ce2cf99faf23e8"
+  },
+  {
+    "path": "macos/ssh_kit/swift/MenuBarTunnels/MenuBarTunnels.swift",
+    "size": 2427,
+    "sha256": "0d2f123587e366bc5ee82a9e8d4e7789fb743bee7faa8de7b8f26d03af9eb7e6"
+  },
+  {
+    "path": "macos/ssh_kit/swift/MenuBarTunnels/build.sh",
+    "size": 239,
+    "sha256": "5e15685b6cc64b9c13001269ace3ab43b6267ae7355a94db68c3e51642e90a7a"
+  },
+  {
+    "path": "macos/ssh_kit/vpn/tailscale_up.sh",
+    "size": 455,
+    "sha256": "c004e7c499d9643674acebe7903c4a1cfd10b352d4134cfcb79ac4a36efd8b9b"
+  },
+  {
+    "path": "macos/ssh_kit/vpn/tailscale_status.sh",
+    "size": 193,
+    "sha256": "8f0d9b0a525fc3209ad13eb809ebdb43acc841c4b2111c2cd8e0393f67c7424b"
+  },
+  {
+    "path": "macos/ssh_kit/vpn/zerotier_join.sh",
+    "size": 508,
+    "sha256": "bce0300e5ad2fcfd28c06af5fb60571f9d97970ef56e6747239f8aa3ac25927f"
+  },
+  {
+    "path": "macos/ssh_kit/vpn/tailscale_acl.example.json",
+    "size": 306,
+    "sha256": "ddd9e7cec0c5a3af99e1cc2576f0ed9ed24c7a86cf660ff6ebd936324e1ae6c2"
+  },
+  {
+    "path": "macos/ssh_kit/vpn/tailscale_apply_acl.sh",
+    "size": 558,
+    "sha256": "9123646350fcbb50bb1d9d7f91b3a186c84520884cd77e981f5efd738e88e6de"
+  },
+  {
+    "path": "services/loinc_web/Dockerfile",
+    "size": 546,
+    "sha256": "22fee5018d38684b19297ba3221a0654698bf6ff3e483abe7d35acd6ddf0d609"
+  },
+  {
+    "path": "services/loinc_web/docker-compose.yml",
+    "size": 372,
+    "sha256": "241135889af8820e8df8371200ad0b69b29446ed909b801761004424f05d74d6"
+  },
+  {
+    "path": "services/loinc_web/docker-compose.traefik.yml",
+    "size": 586,
+    "sha256": "0c884425adce9c8d6e531f28c795d87e591b3c4ea9e23baacc902382afce886b"
+  },
+  {
+    "path": "services/loinc_web/README.md",
+    "size": 2013,
+    "sha256": "61401de1a1cfc3df6bb93104cd09d6b1aab5c516ec9dfc583b96aa5e04bc2592"
+  },
+  {
+    "path": "services/loinc_web/Makefile",
+    "size": 525,
+    "sha256": "ffa4f24b5eb21fc3cd56ed0fa02ba82fbc2ada886b03040701440cb4e5b17071"
+  },
+  {
+    "path": "services/loinc_web/.github/workflows/docker.yml",
+    "size": 780,
+    "sha256": "3c2cccb075d0e54b64d54642fd8f5d5f6a787bd7cd55604ea4837eb8b1e150a7"
+  },
+  {
+    "path": "services/loinc_web/app/app.py",
+    "size": 3558,
+    "sha256": "a4ad464820ce7cc29624012eaf18f712dff3a64c8850882aed4fa6d3a0319c82"
+  },
+  {
+    "path": "services/loinc_web/app/requirements.txt",
+    "size": 57,
+    "sha256": "718b5358f372543f183d7a6fd615db7492a313a827e5053beae3299e07b5de3f"
+  },
+  {
+    "path": "services/loinc_web/app/run.sh",
+    "size": 129,
+    "sha256": "bf5972400a91617b2e763beb0399e3a85ef5cf9e1308586743ed057c71c51861"
+  },
+  {
+    "path": "services/loinc_web/app/static/style.css",
+    "size": 413,
+    "sha256": "3f7f443df3b43cb7a4a4eb2eaaa882fdefa9eed05301198aca6a9b8057efc15a"
+  },
+  {
+    "path": "services/loinc_web/app/templates/index.html",
+    "size": 626,
+    "sha256": "b003bbf62194e47abe39835bd181c8ed0de5fd7674bbfdcc47ff3ccee7f2da7f"
+  },
+  {
+    "path": "services/loinc_web/app/templates/layout.html",
+    "size": 283,
+    "sha256": "04bfa6e203522d1f35676b69cb93df07ad25b2af3ad5b92dfa3415a65017b4b9"
+  },
+  {
+    "path": "services/loinc_web/app/templates/_rows.html",
+    "size": 264,
+    "sha256": "94371a56cc4afb96422f61c47fb8adf3b540997431f2bad32d49ce5b826f7f4a"
+  },
+  {
+    "path": "services/loinc_web/charts/loinc-web/Chart.yaml",
+    "size": 131,
+    "sha256": "cc5c43893f4527b598f365e18dbe416786d7cb8c5164aec8fc1c0d6ab1d1223a"
+  },
+  {
+    "path": "services/loinc_web/charts/loinc-web/values.yaml",
+    "size": 536,
+    "sha256": "ad4a1e45b67b389ed1ca6c6c626aa1bffcbb26b6ded38ac3d6ff8f9b22360773"
+  },
+  {
+    "path": "services/loinc_web/charts/loinc-web/templates/_helpers.tpl",
+    "size": 304,
+    "sha256": "031ad30ee1b6db1500fa08d2ce6a8961db5e9bf6990dd5e7de88c6f0743f0bf5"
+  },
+  {
+    "path": "services/loinc_web/charts/loinc-web/templates/deployment.yaml",
+    "size": 881,
+    "sha256": "5556b91c4a9554ad909e38b74f21c0018854494bed74bd928958e93d42dc9420"
+  },
+  {
+    "path": "services/loinc_web/charts/loinc-web/templates/service.yaml",
+    "size": 345,
+    "sha256": "aab1f049ff73bf94accb898cf4672647c6e4978c55cad2c5b41d4dc73b45d058"
+  },
+  {
+    "path": "services/loinc_web/charts/loinc-web/templates/ingress.yaml",
+    "size": 773,
+    "sha256": "fa0a2b521357c08a2b4a186ff7be9e9876dafdaddc4e5a5b91951f5cb80ee8eb"
+  },
+  {
+    "path": "services/loinc_web/charts/loinc-web/templates/pvc.yaml",
+    "size": 298,
+    "sha256": "4a1986a820f7c6be5c00e5462953c4a6f9a391545cda7ee1eb179947cb719efd"
+  },
+  {
+    "path": "services/loinc_web/charts/loinc-web/templates/loader-job.yaml",
+    "size": 738,
+    "sha256": "4ec454cf7c5ea84a4f41587d5adec36342a2b76a054566d1e24a57a14cc1a43f"
+  },
+  {
+    "path": "services/loinc_web/scripts/loinc_import.py",
+    "size": 2831,
+    "sha256": "b71fddf737fd024f1e0e1fbf73a430718cb24113332e9ce404262bdb824faa5e"
+  },
+  {
+    "path": "services/loinc_web/scripts/README_LOINC_DOWNLOAD.md",
+    "size": 625,
+    "sha256": "a2fbdc1571d53923a2ab36e19581eba7f61dda4b75aecc8575fc887dff9197a6"
+  },
+  {
+    "path": "k8s/gemini_megapack/gemx.sh",
+    "size": 56984,
+    "sha256": "e9b9faa97530f323fe1b4f0b7607899c8cfc437bfe9283a7c9ede55d5ac25e69"
+  },
+  {
+    "path": "k8s/gemini_megapack/.env",
+    "size": 1835,
+    "sha256": "641703cd44e945ed4df34467a80676213cefbd5864b1c2daca88c86ee0d389c7"
+  },
+  {
+    "path": "k8s/gemini_megapack/.envrc",
+    "size": 296,
+    "sha256": "c3166be5d7a238a50bacf3ac6f2b1764f1362c4bb09b8b79cb7fa24175a46b9e"
+  },
+  {
+    "path": "k8s/gemini_megapack/others.json",
+    "size": 7003,
+    "sha256": "cd643b4e1f01c7751ea7b75157b3bcad07f9c8d20688b039d32d7a8c3b6685d9"
+  },
+  {
+    "path": "k8s/gemini_megapack/gemini.md",
+    "size": 19218,
+    "sha256": "b734885b288eacca4e46a6c99d3b6ef8567d67f286329df936b3861c44b9bbb3"
+  },
+  {
+    "path": "k8s/gemini_megapack/install.sh",
+    "size": 3820,
+    "sha256": "10787acf2589ee59b25e359326f27b2c932cf79e9fb6229601fe2cad88b00fdd"
+  },
+  {
+    "path": "k8s/gemini_megapack/doctor.sh",
+    "size": 1108,
+    "sha256": "29424588ba70a28b39f3b7187fe6ac7a9933ccb219fa5243eaac0240fc37f3b6"
+  },
+  {
+    "path": "k8s/gemini_megapack/uninstall.sh",
+    "size": 856,
+    "sha256": "909d30165a5ff1d1779a1d867f783c983c08149cc62ca6fcf3ff47b1f5c2538e"
+  },
+  {
+    "path": "k8s/gemini_megapack/Makefile",
+    "size": 1306,
+    "sha256": "301b96083d939e45cb08345959565abe351efd738cb66b5d3ff61cf88eb54f99"
+  },
+  {
+    "path": "k8s/gemini_megapack/install-macos.sh",
+    "size": 1280,
+    "sha256": "bfdb5b2d45167c0c25affbffbfa38a4d17916f6882d76340dcc89f4329a8b10d"
+  },
+  {
+    "path": "k8s/gemini_megapack/install-ubuntu.sh",
+    "size": 1647,
+    "sha256": "1927ffaf6205c33f4e6ddc70b387b265dc01f9553d48f4b44dd41080cc3d009d"
+  },
+  {
+    "path": "k8s/gemini_megapack/gemx-stats.sh",
+    "size": 6444,
+    "sha256": "0bf555bfc34b2cadb58d2c3bdb7dda7e98babcaaff920df97d4df58531d1f34c"
+  },
+  {
+    "path": "k8s/gemini_megapack/gemx-logs.sh",
+    "size": 1586,
+    "sha256": "7958da612e816cbd7173377548fd11c3c1b375c6bd06fe47ed9bd32711b55a2d"
+  },
+  {
+    "path": "k8s/gemini_megapack/gemx-stats-html.py",
+    "size": 8577,
+    "sha256": "b76e12b60525c377f05c96a434ea0be214d389724d0019509148956246fd7a8c"
+  },
+  {
+    "path": "k8s/gemini_megapack/gemx-stats-md.py",
+    "size": 4449,
+    "sha256": "8c52829a36c856872f2034911c6280f29ffce74d1980996c912a2d357e8a98fc"
+  },
+  {
+    "path": "k8s/gemini_megapack/flow-run.sh",
+    "size": 2170,
+    "sha256": "cc064bad2bcf37ab57d066e54e800becfe6be9da11f261003881f11eb496731c"
+  },
+  {
+    "path": "k8s/gemini_megapack/queue.sh",
+    "size": 189,
+    "sha256": "2a311a84318002b398ebe355d08d00e5510e5cd599156276a8c2272f9acb8bb8"
+  },
+  {
+    "path": "k8s/gemini_megapack/queue-runner.sh",
+    "size": 457,
+    "sha256": "1c95c48a3b721e5037b587ff0fdfc8c37cda15d61ae695f0e285fca49b150b62"
+  },
+  {
+    "path": "k8s/gemini_megapack/sign-job.sh",
+    "size": 770,
+    "sha256": "41b17332a0ac865781864c129e0a45c99cbc80f7f5900f7e6d5cbf46d0486a30"
+  },
+  {
+    "path": "k8s/gemini_megapack/verify-job.sh",
+    "size": 577,
+    "sha256": "8e746079ffca9f83c208a747d70c79848a78bf4b9d515a98c0e48ecf3c389da3"
+  },
+  {
+    "path": "k8s/gemini_megapack/flow-batch.sh",
+    "size": 5181,
+    "sha256": "4f3cfe37bbbc5d48eda45a4371696ecbb8bdf99fbe299d7d5dbb928c8f9d2d24"
+  },
+  {
+    "path": "k8s/gemini_megapack/gemx-flowbatch-agg.py",
+    "size": 6983,
+    "sha256": "967a743eec19d30bf766a795f09e7a815970f3b2f36fb12bf91f5edc927d5ad0"
+  },
+  {
+    "path": "k8s/gemini_megapack/Dockerfile",
+    "size": 1085,
+    "sha256": "1cbd05f2b1311b650daf51f6531d3955092b90e6e7729bcf141de43fd446454a"
+  },
+  {
+    "path": "k8s/gemini_megapack/.dockerignore",
+    "size": 95,
+    "sha256": "565cf402f0aea878365cb797a77bc1059c134d8fd1a6c3b056de939f569076d5"
+  },
+  {
+    "path": "k8s/gemini_megapack/docker-compose.yml",
+    "size": 1233,
+    "sha256": "b0313fab314efc7ad1ff3fcb3c5687888de4a0cb2d430178575cc15b115a81bf"
+  },
+  {
+    "path": "k8s/gemini_megapack/Caddyfile",
+    "size": 153,
+    "sha256": "4d4e21c81fb5247133bd4a839d43597809cec51bf0fb41ff5611e39b690e42ee"
+  },
+  {
+    "path": "k8s/gemini_megapack/docker-compose.traefik.yml",
+    "size": 1422,
+    "sha256": "a03ce486bd92ce8d7defc37794e1fa4dcd1a8f96691f9d8f6acab1bca2f45d72"
+  },
+  {
+    "path": "k8s/gemini_megapack/.github/workflows/docker.yml",
+    "size": 1717,
+    "sha256": "9234b4e990e9b1c73fa5fa00f9eeecff8a8e693835cdd9c23cbaab2e0ff01180"
+  },
+  {
+    "path": "k8s/gemini_megapack/.meta/README.txt",
+    "size": 36,
+    "sha256": "507cadcebc17d0cd942f44cece33f9ba25b540a55f8a282d4d7d7ed71e43fcc0"
+  },
+  {
+    "path": "k8s/gemini_megapack/automations/rx_brief.yaml",
+    "size": 424,
+    "sha256": "277be5683988f064f935dd31cb9eade1f019afc2cfa5a6ebc2c9c08b6f3b49d0"
+  },
+  {
+    "path": "k8s/gemini_megapack/automations/sgarbossa_check.yaml",
+    "size": 317,
+    "sha256": "07d8f0bce879e5836ccf96bc651eec2848e0d6d6085a0d35ab9d39086a99e03e"
+  },
+  {
+    "path": "k8s/gemini_megapack/automations/batch_from_file.sh",
+    "size": 157,
+    "sha256": "d495228134c8c16e1321bfd9b55b5e20fa2d5eb4736164a0de687d94687befca"
+  },
+  {
+    "path": "k8s/gemini_megapack/automations/sepse_bundle.yaml",
+    "size": 1277,
+    "sha256": "ae0c261ea9d602c3a6ebd2cc98cf856048f88ebfec6894f1227abdd07b0cce9a"
+  },
+  {
+    "path": "k8s/gemini_megapack/automations/hda_triage.yaml",
+    "size": 831,
+    "sha256": "f55d3d414ce3002f86d59657893f447f4f900f8a9a8869f7604fc77c27a964ed"
+  },
+  {
+    "path": "k8s/gemini_megapack/automations/ira_algoritmo.yaml",
+    "size": 756,
+    "sha256": "24f9791ae5ea02e0e53e4c0b82ba0c9c027f4efe98179092576c34e18a41e640"
+  },
+  {
+    "path": "k8s/gemini_megapack/automations/ventilacao_mecanica_inicial.yaml",
+    "size": 1004,
+    "sha256": "42363e95a3b4e27aceb23fb043c87b7fc24c384186da690c882fe4775747ae48"
+  },
+  {
+    "path": "k8s/gemini_megapack/automations/ira_aki.yaml",
+    "size": 649,
+    "sha256": "615f8cc949e9db522dffd640119c21bcf81f223632160e2955f16d8da0185f02"
+  },
+  {
+    "path": "k8s/gemini_megapack/automations/ventilacao_mecanica.yaml",
+    "size": 823,
+    "sha256": "d8a0209529f14e727c14af93f2670f3d5e7039c1bf414e6a975753845c0ff527"
+  },
+  {
+    "path": "k8s/gemini_megapack/automations/broncoespasmo_seco.yaml",
+    "size": 838,
+    "sha256": "206c2c439b8b6e62bb57c32d8ea1e539e86097effc66bae7ba383406af54622e"
+  },
+  {
+    "path": "k8s/gemini_megapack/automations/README.md",
+    "size": 743,
+    "sha256": "31a85e2820fdc1b0b490ec3c53f0df4845cedc6ec66e31b23496c8ff3ca27e4c"
+  },
+  {
+    "path": "k8s/gemini_megapack/charts/gemx/Chart.yaml",
+    "size": 275,
+    "sha256": "a2231b6280d0aa37eb483b29977b1d67e58bb403ab345d1859b7ab69109800e1"
+  },
+  {
+    "path": "k8s/gemini_megapack/charts/gemx/values.yaml",
+    "size": 1410,
+    "sha256": "c3fd9b7860dbd13fd525edafcc5797239bc4e4eb3358866782f3de9c34c5c469"
+  },
+  {
+    "path": "k8s/gemini_megapack/charts/gemx/values-gke.yaml",
+    "size": 535,
+    "sha256": "f9b7ac5b7e4d3ece650083943cb37ff83c9f336a32b504e0b95632a873ea9720"
+  },
+  {
+    "path": "k8s/gemini_megapack/charts/gemx/values-traefik.yaml",
+    "size": 762,
+    "sha256": "0d934c784b9c64b9af772fe79e0c9cd2752951c78e4656ae220a56b21871dea2"
+  },
+  {
+    "path": "k8s/gemini_megapack/charts/gemx/templates/_helpers.tpl",
+    "size": 685,
+    "sha256": "8bd8e9de1aa9c81d4eedd20c0e83d0af1564b64ca2d20723032e627c5ea3df05"
+  },
+  {
+    "path": "k8s/gemini_megapack/charts/gemx/templates/deployment.yaml",
+    "size": 2116,
+    "sha256": "fd8f5f174ffd70a3ac0b292c397d17a2c4eb7923a80b20777aa051f574615cd6"
+  },
+  {
+    "path": "k8s/gemini_megapack/charts/gemx/templates/service.yaml",
+    "size": 445,
+    "sha256": "f518b0ec8167a2213a33d3577c481708e2159e1d520f6bbac7969fd61b839db8"
+  },
+  {
+    "path": "k8s/gemini_megapack/charts/gemx/templates/ingress.yaml",
+    "size": 771,
+    "sha256": "ca46d74a839452a59d7bc24981891bd72648acdab90cf5a3f34e20394686f8c3"
+  },
+  {
+    "path": "k8s/gemini_megapack/charts/gemx/templates/pvc.yaml",
+    "size": 297,
+    "sha256": "be707af5143c2e4972f63cda92fc4eb5e41efc00232b82105a0d031987c62934"
+  },
+  {
+    "path": "k8s/gemini_megapack/charts/gemx/templates/secrets.yaml",
+    "size": 581,
+    "sha256": "c92ca054d2b38d66a8151f4f2a965c730cda574af4e9210f568412f5430ab085"
+  },
+  {
+    "path": "k8s/gemini_megapack/charts/gemx/templates/managedcert.yaml",
+    "size": 296,
+    "sha256": "d6a5ca373b4cfcc6cfac4fc8e039be4a9f4eeef0c05b5018a3ae3a6e96f04bd8"
+  },
+  {
+    "path": "k8s/gemini_megapack/completions/gemx.zsh",
+    "size": 125,
+    "sha256": "5f14245bc7d81ec65e33e7e0979417cb74341bc76c1e9aa1bbda0f4a3d3b13b5"
+  },
+  {
+    "path": "k8s/gemini_megapack/completions/gemx.fish",
+    "size": 97,
+    "sha256": "a3b998f01c8ff7cb9c3ba3059e5d609e43fd21e581165ec2f771ad27d285a5c9"
+  },
+  {
+    "path": "k8s/gemini_megapack/dist/hosts",
+    "size": 194,
+    "sha256": "977ffe24288a1bb331927aca17aa2f93ef8cf310f31471ac547e1a1ebbb501a6"
+  },
+  {
+    "path": "k8s/gemini_megapack/dist/cluster.sh",
+    "size": 945,
+    "sha256": "bcd04262becf57a184ed26c26e065fa0b73e27c19159e0b951b7933ea73375a1"
+  },
+  {
+    "path": "k8s/gemini_megapack/dist/deploy.sh",
+    "size": 898,
+    "sha256": "d00616bad11632e03ff3573816d49762d34705295deb1700f0c085903e1a499f"
+  },
+  {
+    "path": "k8s/gemini_megapack/dist/flow.sh",
+    "size": 353,
+    "sha256": "cb72b120efac6039e68b46ce1bad8f06c9c560ae27cbdec0a2231e2ec4351a75"
+  },
+  {
+    "path": "k8s/gemini_megapack/dist/flow-batch.sh",
+    "size": 289,
+    "sha256": "91921e0cb57366af04fda81b9aab2f1c349ddd1e85b0e1bef5d257aa2703a60b"
+  },
+  {
+    "path": "k8s/gemini_megapack/flows/flow_example.yml",
+    "size": 771,
+    "sha256": "1bb0dd6f1ef6696cb991d7b08e93f0e7eec2ad813b5a31162000cce5689633eb"
+  },
+  {
+    "path": "k8s/gemini_megapack/infra/terraform/gke/versions.tf",
+    "size": 275,
+    "sha256": "7ba46c79e94b23ae1765e837bf3fb7eb6b29b5393117137481310a47353a89ca"
+  },
+  {
+    "path": "k8s/gemini_megapack/infra/terraform/gke/main.tf",
+    "size": 4106,
+    "sha256": "ff7497077516e32680ce80a2713232e53b4d57c85a985723199f9afdb7360480"
+  },
+  {
+    "path": "k8s/gemini_megapack/infra/terraform/gke/variables.tf",
+    "size": 871,
+    "sha256": "f79fefcf4097530ba70d1aca097e8bf05f9232fd8d4f3189f54ffc05bdb4725b"
+  },
+  {
+    "path": "k8s/gemini_megapack/infra/terraform/gke/outputs.tf",
+    "size": 143,
+    "sha256": "89d6c717a69c30cdcff214b183fd72975a85afa5d9e1c35e4fcde73ec63e7405"
+  },
+  {
+    "path": "k8s/gemini_megapack/infra/terraform/gke/README.md",
+    "size": 629,
+    "sha256": "b24f3d84e182cb884997ac3f51176650a96d2bf23f3b5d30b827107caa60145e"
+  },
+  {
+    "path": "k8s/gemini_megapack/infra/terraform/gke/terraform.tfvars.example",
+    "size": 336,
+    "sha256": "040bb4fd5b0b72fdc7679e5571485d2a07edb60952b8900fec14a05809c7ee8a"
+  },
+  {
+    "path": "k8s/gemini_megapack/k8s/deploy.yaml",
+    "size": 2231,
+    "sha256": "92d2290ef1490f5b1ddf2d14a48768b215ca63b3e6b0f96740f85efb59d85853"
+  },
+  {
+    "path": "k8s/gemini_megapack/k8s/secret.yaml",
+    "size": 172,
+    "sha256": "ff2f5cd9719741a3a0a23f44a40d1577a606878a0249b3cf14761a0b5f430450"
+  },
+  {
+    "path": "k8s/gemini_megapack/k8s/pvc.yaml",
+    "size": 157,
+    "sha256": "f0107801f5f9ba9a46948db8807dcabd7c8ef43780a82272f1e26a23d18e256b"
+  },
+  {
+    "path": "k8s/gemini_megapack/k8s/vector-sidecar.yaml",
+    "size": 1547,
+    "sha256": "d5949061d313312c40adad454feddaaf299b4c0a6f2d221babc4353e6ce4e219"
+  },
+  {
+    "path": "k8s/gemini_megapack/k8s/fluentbit-sidecar.yaml",
+    "size": 921,
+    "sha256": "9dc6a26e4ad4bf9a097cc331b9cff891929a526af886a3543036af68ca25945f"
+  },
+  {
+    "path": "k8s/gemini_megapack/plugins.d/rag.sh",
+    "size": 847,
+    "sha256": "9d15b8077e6c9848d26b8c60af9c0e12b71ec8b8e88ae836f5e59c6209032d04"
+  },
+  {
+    "path": "k8s/gemini_megapack/plugins.d/obsidian_export.sh",
+    "size": 545,
+    "sha256": "32c862be533dd404710ab0bd207448727ae09561c6cfe4995e7615c8ceb83eda"
+  },
+  {
+    "path": "k8s/gemini_megapack/plugins.d/json_validate.sh",
+    "size": 497,
+    "sha256": "3cfda22f20c5baa1008cc7d2498f817fca4f0e4a003f5bdf04799a845fc16039"
+  },
+  {
+    "path": "k8s/gemini_megapack/plugins.d/notion_export.sh",
+    "size": 2663,
+    "sha256": "3cc029e6ab6d3fbedc280c5cbda550552cb5d7e58ec4115ac4a7c81763bb2e05"
+  },
+  {
+    "path": "k8s/gemini_megapack/plugins.d/omnifocus_task.sh",
+    "size": 1636,
+    "sha256": "fb9a2c3c65ca34f0c82ecd00bef2e494cf47a47eab56ea129f8f9e629e010f81"
+  },
+  {
+    "path": "k8s/gemini_megapack/profiles/clinical.json",
+    "size": 304,
+    "sha256": "b76d4aeae74707e9628e4425e99103ac89081339fd2b83b33e70e7a079b5b994"
+  },
+  {
+    "path": "k8s/gemini_megapack/profiles/coding.json",
+    "size": 279,
+    "sha256": "ad90923ad9df223dcca1ba857738ef8cc0d885fdb5827f8e74aad8a1fca620a4"
+  },
+  {
+    "path": "k8s/gemini_megapack/profiles/research.json",
+    "size": 274,
+    "sha256": "35835a5fc3590dc34ecf99d00bb8b9c6ef6eaca961e810b31b3bb09b8fc7d453"
+  },
+  {
+    "path": "k8s/gemini_megapack/rules.d/default.rules.yaml",
+    "size": 260,
+    "sha256": "647f0c9771dcacba7e05af6a8d56e7575e0bff7d9b4264b281fd074e9b57abbd"
+  },
+  {
+    "path": "k8s/gemini_megapack/schemas/sepsis.schema.json",
+    "size": 385,
+    "sha256": "aedc563baebb9afa2292a42e69b0c2e6351577727ccac61c269355b64dfc6ca8"
+  },
+  {
+    "path": "k8s/gemini_megapack/schemas/generic_output.schema.json",
+    "size": 78,
+    "sha256": "05c442134873788a23a0c7000d7d52b13c719866493f7c5bbe77f47ff9baadea"
+  },
+  {
+    "path": "k8s/gemini_megapack/templates/README.md",
+    "size": 352,
+    "sha256": "9ab29555a7e4a1b4d85c26ffd0429a42e9889fe58668c9228c93fb82fbdc6d21"
+  },
+  {
+    "path": "k8s/gemini_megapack/tests/self-test.sh",
+    "size": 278,
+    "sha256": "dae811cceee12bb33b6d2dd3619ad196e9164e824848134b9d8401ccfc66d750"
+  },
+  {
+    "path": "k8s/gemini_megapack/traefik/traefik.yml",
+    "size": 353,
+    "sha256": "61577ebdfd7c8329b00d738daecab8e3e85de69e3979fb5b100d01ff14309f89"
+  },
+  {
+    "path": "k8s/gemini_megapack/traefik/dynamic.yml",
+    "size": 150,
+    "sha256": "092e63af6c16b4261ed348cfddfa678403c0800b3e6c4c130c2fe8427e7be59b"
+  },
+  {
+    "path": "k8s/gemini_megapack/tui/gemx-tui.py",
+    "size": 1299,
+    "sha256": "13e8b5189050074ad2c09aaa8c507f3c8a46a48bd98e8a44a23237f83004d944"
+  },
+  {
+    "path": "k8s/gemini_megapack/web/app.py",
+    "size": 8314,
+    "sha256": "6b12cf86c3d4d8ad80b20ebfaefc39f405679d2850b4d72056f8b0582d201c9c"
+  },
+  {
+    "path": "k8s/gemini_megapack/web/requirements.txt",
+    "size": 120,
+    "sha256": "5faaef98a48b2ecab61c03d91624ebb1bfd8134ec9e5aba75d1670ad9f505559"
+  },
+  {
+    "path": "k8s/gemini_megapack/web/static/index.html",
+    "size": 2800,
+    "sha256": "799c7b6f209cbc727da667ecd03a871fc209373ca55467bf9a733faad99bdbf8"
+  },
+  {
+    "path": "charts/loinc-web/Chart.yaml",
+    "size": 131,
+    "sha256": "cc5c43893f4527b598f365e18dbe416786d7cb8c5164aec8fc1c0d6ab1d1223a"
+  },
+  {
+    "path": "charts/loinc-web/values.yaml",
+    "size": 536,
+    "sha256": "ad4a1e45b67b389ed1ca6c6c626aa1bffcbb26b6ded38ac3d6ff8f9b22360773"
+  },
+  {
+    "path": "charts/loinc-web/templates/_helpers.tpl",
+    "size": 304,
+    "sha256": "031ad30ee1b6db1500fa08d2ce6a8961db5e9bf6990dd5e7de88c6f0743f0bf5"
+  },
+  {
+    "path": "charts/loinc-web/templates/deployment.yaml",
+    "size": 881,
+    "sha256": "5556b91c4a9554ad909e38b74f21c0018854494bed74bd928958e93d42dc9420"
+  },
+  {
+    "path": "charts/loinc-web/templates/service.yaml",
+    "size": 345,
+    "sha256": "aab1f049ff73bf94accb898cf4672647c6e4978c55cad2c5b41d4dc73b45d058"
+  },
+  {
+    "path": "charts/loinc-web/templates/ingress.yaml",
+    "size": 773,
+    "sha256": "fa0a2b521357c08a2b4a186ff7be9e9876dafdaddc4e5a5b91951f5cb80ee8eb"
+  },
+  {
+    "path": "charts/loinc-web/templates/pvc.yaml",
+    "size": 298,
+    "sha256": "4a1986a820f7c6be5c00e5462953c4a6f9a391545cda7ee1eb179947cb719efd"
+  },
+  {
+    "path": "charts/loinc-web/templates/loader-job.yaml",
+    "size": 738,
+    "sha256": "4ec454cf7c5ea84a4f41587d5adec36342a2b76a054566d1e24a57a14cc1a43f"
+  },
+  {
+    "path": "charts/gemx/Chart.yaml",
+    "size": 275,
+    "sha256": "a2231b6280d0aa37eb483b29977b1d67e58bb403ab345d1859b7ab69109800e1"
+  },
+  {
+    "path": "charts/gemx/values.yaml",
+    "size": 1410,
+    "sha256": "c3fd9b7860dbd13fd525edafcc5797239bc4e4eb3358866782f3de9c34c5c469"
+  },
+  {
+    "path": "charts/gemx/values-gke.yaml",
+    "size": 535,
+    "sha256": "f9b7ac5b7e4d3ece650083943cb37ff83c9f336a32b504e0b95632a873ea9720"
+  },
+  {
+    "path": "charts/gemx/values-traefik.yaml",
+    "size": 762,
+    "sha256": "0d934c784b9c64b9af772fe79e0c9cd2752951c78e4656ae220a56b21871dea2"
+  },
+  {
+    "path": "charts/gemx/templates/_helpers.tpl",
+    "size": 685,
+    "sha256": "8bd8e9de1aa9c81d4eedd20c0e83d0af1564b64ca2d20723032e627c5ea3df05"
+  },
+  {
+    "path": "charts/gemx/templates/deployment.yaml",
+    "size": 2116,
+    "sha256": "fd8f5f174ffd70a3ac0b292c397d17a2c4eb7923a80b20777aa051f574615cd6"
+  },
+  {
+    "path": "charts/gemx/templates/service.yaml",
+    "size": 445,
+    "sha256": "f518b0ec8167a2213a33d3577c481708e2159e1d520f6bbac7969fd61b839db8"
+  },
+  {
+    "path": "charts/gemx/templates/ingress.yaml",
+    "size": 771,
+    "sha256": "ca46d74a839452a59d7bc24981891bd72648acdab90cf5a3f34e20394686f8c3"
+  },
+  {
+    "path": "charts/gemx/templates/pvc.yaml",
+    "size": 297,
+    "sha256": "be707af5143c2e4972f63cda92fc4eb5e41efc00232b82105a0d031987c62934"
+  },
+  {
+    "path": "charts/gemx/templates/secrets.yaml",
+    "size": 581,
+    "sha256": "c92ca054d2b38d66a8151f4f2a965c730cda574af4e9210f568412f5430ab085"
+  },
+  {
+    "path": "charts/gemx/templates/managedcert.yaml",
+    "size": 296,
+    "sha256": "d6a5ca373b4cfcc6cfac4fc8e039be4a9f4eeef0c05b5018a3ae3a6e96f04bd8"
+  }
+]

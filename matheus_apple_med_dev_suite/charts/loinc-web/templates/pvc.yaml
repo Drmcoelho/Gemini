@@ -1,0 +1,11 @@
+{{- if .Values.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "loinc.fullname" . }}-pvc
+spec:
+  accessModes: {{ toYaml .Values.persistence.accessModes | nindent 2 }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size }}
+{{- end }}

@@ -1,0 +1,31 @@
+traefik:
+  enabled: true
+  additionalArguments:
+    - "--certificatesresolvers.le.acme.tlschallenge=true"
+    - "--certificatesresolvers.le.acme.email=admin@example.com"
+    - "--certificatesresolvers.le.acme.storage=/data/acme.json"
+    - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+    - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 1Gi
+  ports:
+    web:
+      expose: true
+      port: 80
+    websecure:
+      expose: true
+      port: 443
+
+ingress:
+  enabled: true
+  className: "traefik"
+  hosts:
+    - host: gemx.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: gemx-tls
+      hosts: [ gemx.example.com ]

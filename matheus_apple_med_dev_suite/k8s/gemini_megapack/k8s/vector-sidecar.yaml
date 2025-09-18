@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gemx-vector-config
+data:
+  vector.toml: |
+    [sources.logs]
+      type = "file"
+      include = ["/home/app/.config/gemx/logs/*.jsonl"]
+
+    [transforms.parse_json]
+      type = "remap"
+      inputs = ["logs"]
+      source = '''
+      . = parse_json!(.message)
+      '''
+
+    [sinks.loki]
+      type = "loki"
+      inputs = ["parse_json"]
+      endpoint = "${LOKI_URL}"
+      encoding.codec = "json"
+      labels.app = "gemx"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gemx-with-vector
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: gemx-with-vector } }
+  template:
+    metadata:
+      labels: { app: gemx-with-vector }
+    spec:
+      containers:
+        - name: gemx
+          image: ghcr.io/your-org/gemini-megapack:latest
+          env:
+            - name: GEMX_FORCE_MODEL
+              value: "gemini-2.5-pro"
+          volumeMounts:
+            - name: config
+              mountPath: /home/app/.config/gemx
+        - name: vector
+          image: timberio/vector:0.38.0-debian
+          env:
+            - name: LOKI_URL
+              value: "http://loki:3100"
+          volumeMounts:
+            - name: config
+              mountPath: /home/app/.config/gemx
+            - name: vector-config
+              mountPath: /etc/vector
+      volumes:
+        - name: config
+          emptyDir: {}
+        - name: vector-config
+          configMap:
+            name: gemx-vector-config
+            items:
+              - key: vector.toml
+                path: vector.toml

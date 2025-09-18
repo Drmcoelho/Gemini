@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gemx.fullname" . }}
+  labels: {{- include "gemx.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels: {{- include "gemx.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels: {{- include "gemx.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: gemx
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+          env:
+            - name: GEMX_FORCE_MODEL
+              value: "gemini-2.5-pro"
+            {{- if .Values.oauth.enabled }}
+            - name: GOOGLE_CLIENT_ID
+              valueFrom: { secretKeyRef: { name: {{ include "gemx.fullname" . }}-secrets, key: GOOGLE_CLIENT_ID } }
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom: { secretKeyRef: { name: {{ include "gemx.fullname" . }}-secrets, key: GOOGLE_CLIENT_SECRET } }
+            - name: OAUTH_CALLBACK_URL
+              valueFrom: { secretKeyRef: { name: {{ include "gemx.fullname" . }}-secrets, key: OAUTH_CALLBACK_URL } }
+            - name: ALLOWED_EMAILS
+              valueFrom: { secretKeyRef: { name: {{ include "gemx.fullname" . }}-secrets, key: ALLOWED_EMAILS } }
+            - name: ALLOWED_DOMAIN
+              valueFrom: { secretKeyRef: { name: {{ include "gemx.fullname" . }}-secrets, key: ALLOWED_DOMAIN } }
+            {{- end }}
+            {{- if .Values.basicAuth.enabled }}
+            - name: WEB_USER
+              valueFrom: { secretKeyRef: { name: {{ include "gemx.fullname" . }}-secrets, key: WEB_USER } }
+            - name: WEB_PASS
+              valueFrom: { secretKeyRef: { name: {{ include "gemx.fullname" . }}-secrets, key: WEB_PASS } }
+            {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: /home/app/.config/gemx
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ include "gemx.fullname" . }}-pvc

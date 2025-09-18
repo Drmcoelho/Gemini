@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  loinc-web:
+    image: loinc-web:latest
+    environment:
+      - DB_PATH=/data/loinc.sqlite
+    volumes:
+      - ./data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.loinc.rule=Host(`${DOMAIN:-loinc.localhost}`)"
+      - "traefik.http.routers.loinc.entrypoints=web"
+      - "traefik.http.routers.loinc-sec.entrypoints=websecure"
+      - "traefik.http.routers.loinc-sec.rule=Host(`${DOMAIN:-loinc.localhost}`)"
+      - "traefik.http.routers.loinc-sec.tls=true"
+      - "traefik.http.services.loinc.loadbalancer.server.port=8080"

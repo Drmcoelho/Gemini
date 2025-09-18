@@ -1,0 +1,7 @@
+name: sgarbossa_check
+model: gemini-2.5-pro
+temperature: 0.1
+prompt: |
+  Explique os critérios de Sgarbossa (clássico e modificado) para diagnóstico de IAM em presença de BRE/MP.
+  Responda em bullets com: limites numéricos, sensibilidade/especificidade (faixas), limitações e conduta prática.
+extra_args: []

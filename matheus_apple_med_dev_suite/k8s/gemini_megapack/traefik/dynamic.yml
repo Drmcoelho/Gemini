@@ -1,0 +1,10 @@
+http:
+  middlewares:
+    ratelimit:
+      rateLimit:
+        average: 50
+        burst: 100
+    gzip:
+      compress: {}
+  routers: {}
+  services: {}

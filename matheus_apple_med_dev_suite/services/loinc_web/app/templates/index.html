@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block body %}
+<h1>LOINC Web</h1>
+<form hx-get="/ui/search" hx-target="#results" hx-indicator=".htmx-indicator">
+  <input type="text" name="q" placeholder="Search LOINC by name/component/FTS..." autofocus />
+  <select name="limit">
+    <option>25</option><option>50</option><option>100</option>
+  </select>
+  <button type="submit">Search</button>
+  <span class="htmx-indicator">⏳</span>
+</form>
+<table class="table">
+  <thead><tr><th>Code</th><th>Long Name</th><th>Component</th><th>Property</th><th>System</th><th>Class</th></tr></thead>
+  <tbody id="results"></tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,3 @@
+# ~/.ssh/config — inclui config.d/*
+# (adicionado automaticamente pelo bootstrap)
+Include ~/.ssh/config.d/*.conf

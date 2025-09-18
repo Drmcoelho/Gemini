@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# ssh-tunnel — maintain an SSH local forward via autossh or ssh in a loop.
+set -euo pipefail
+HOST="${HOST:-}"
+LPORT="${LPORT:-}"
+RHOST="${RHOST:-}"
+RPORT="${RPORT:-}"
+IDENT="${IDENT:-$HOME/.ssh/id_ed25519}"
+OPTS="${OPTS:-}"
+
+[ -n "$HOST" ] && [ -n "$LPORT" ] && [ -n "$RHOST" ] && [ -n "$RPORT" ] || {
+  echo "Uso: HOST=host LPORT=5432 RHOST=127.0.0.1 RPORT=5432 [IDENT=~/.ssh/id] $0"; exit 1; }
+
+while true; do
+  echo "[TUNNEL] $LPORT -> $RHOST:$RPORT via $HOST"
+  if command -v autossh >/dev/null 2>&1; then
+    AUTOSSH_GATETIME=30 AUTOSSH_LOGLEVEL=7 \
+    autossh -M 0 -N -o ExitOnForwardFailure=yes -i "$IDENT" $OPTS -L "${LPORT}:${RHOST}:${RPORT}" "$HOST"
+  else
+    ssh -N -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes -i "$IDENT" $OPTS -L "${LPORT}:${RHOST}:${RPORT}" "$HOST"
+  fi
+  echo "[TUNNEL] desconectado, tentando novamente em 5s..."; sleep 5
+done

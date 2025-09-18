@@ -1,0 +1,13 @@
+project_id = "SEU_PROJETO"
+region     = "us-central1"
+cluster_name = "gemx-autopilot"
+domain     = "gemx.example.com"
+acme_email = "admin@example.com"
+
+oauth_enabled = true
+google_client_id = "GOOGLE_OAUTH_CLIENT_ID"
+google_client_secret = "GOOGLE_OAUTH_SECRET"
+allowed_domain = "example.com"
+
+enable_traefik = true
+create_zone = false

@@ -1,0 +1,33 @@
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+gke:
+  neg: true
+
+persistence:
+  enabled: true
+  accessModes: [ "ReadWriteOnce" ]
+  size: 5Gi
+
+ingress:
+  enabled: true
+  className: "gce"
+  hosts:
+    - host: gemx.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: gemx-tls
+      hosts: [ gemx.example.com ]
+
+oauth:
+  enabled: true
+  googleClientId: ""
+  googleClientSecret: ""
+  callbackUrl: "https://gemx.example.com/auth/callback"
+  allowedDomain: "example.com"

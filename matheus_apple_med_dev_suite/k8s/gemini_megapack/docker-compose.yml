@@ -1,0 +1,45 @@
+version: "3.9"
+services:
+  gemx:
+    build: .
+    image: gemini-megapack:latest
+    container_name: gemx
+    ports:
+      - "8080:8080"
+    environment:
+      - WEB_USER=${WEB_USER:-}
+      - WEB_PASS=${WEB_PASS:-}
+      - GEMX_FORCE_MODEL=gemini-2.5-pro
+      - NOTION_TOKEN=${NOTION_TOKEN:-}
+      - NOTION_DATABASE_ID=${NOTION_DATABASE_ID:-}
+      - OBSIDIAN_VAULT=/data/obsidian
+    volumes:
+      - gemx_config:/home/app/.config/gemx
+      - ./automations:/app/automations
+      - ./flows:/app/flows
+      - ./kb:/app/kb
+      # Opcional: monte o binário 'gemini' (proprietário) se desejar usá-lo dentro do contêiner
+      # - /usr/local/bin/gemini:/usr/local/bin/gemini:ro
+      - ./data:/data
+    restart: unless-stopped
+
+  # Proxy opcional com Caddy (reverse proxy + TLS automático se você mapear portas 80/443 e setar DOMAIN)
+  caddy:
+    image: caddy:2-alpine
+    depends_on: [gemx]
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN:-localhost}
+      - EMAIL=${EMAIL:-admin@example.com}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+
+volumes:
+  gemx_config:
+  caddy_data:
+  caddy_config:

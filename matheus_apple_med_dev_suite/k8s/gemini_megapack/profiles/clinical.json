@@ -1,0 +1,11 @@
+{
+  "model": "gemini-2.5-pro",
+  "stream": true,
+  "templates": {
+    "brief_rx": "Resuma a prescrição em tópicos operacionais com validação de dose/ajuste renal.",
+    "icu_checklist": "Checklist ABCDE intensivo, metas e pendências em 5 bullets."
+  },
+  "plugins": {
+    "safe_prompts": true
+  }
+}

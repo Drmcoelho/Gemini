@@ -1,0 +1,24 @@
+# flows/flow_example.yml — Exemplo de pipeline multi-etapas
+# Requer yq (opcional). Fallback via jq + sed limitado.
+steps:
+  - name: Contexto RAG
+    run: rag             # usa plugin rag
+    args:
+      kb: "./kb"
+      query: "sepse noradrenalina dose diluição"
+      max_bytes: 16000
+    save_as: ctx
+
+  - name: Geração orientada
+    run: gen             # subcomando do wrapper
+    prompt: |
+      Use o CONTEXTO abaixo (limitado e pode conter ruído). Gere um protocolo objetivo:
+      ---
+      ${ctx}
+      ---
+      Metas: 1) doses EV/VO com apresentação + diluição; 2) check renal/hepático; 3) checklist final.
+
+  - name: Export Obsidian
+    run: obsidian        # usa plugin obsidian_export
+    title: "Protocolo Sepse — Draft"
+    from_last: true

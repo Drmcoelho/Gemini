@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  loinc-web:
+    build: .
+    image: loinc-web:latest
+    environment:
+      - DB_PATH=/data/loinc.sqlite
+    ports:
+      - "8088:8080"
+    volumes:
+      - ./data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/api/ping || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 10s

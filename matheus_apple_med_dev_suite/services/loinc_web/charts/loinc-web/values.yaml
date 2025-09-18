@@ -1,0 +1,33 @@
+image:
+  repository: ghcr.io/YOUR_ORG/loinc-web
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  className: "nginx"
+  hosts:
+    - host: loinc.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: loinc-tls
+      hosts: [ loinc.example.com ]
+
+persistence:
+  enabled: true
+  size: 2Gi
+  accessModes: [ "ReadWriteOnce" ]
+
+env:
+  DB_PATH: /data/loinc.sqlite
+
+loader:
+  enabled: false
+  csvPath: /seed/LoincTableCore.csv

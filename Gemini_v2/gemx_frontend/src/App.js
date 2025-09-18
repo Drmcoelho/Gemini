@@ -9,7 +9,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const API_BASE_URL = 'http://localhost:8000'; // Assuming FastAPI is running on port 8000
+  const API_BASE_URL = process.env.REACT_APP_API_BASE || 'http://localhost:8000';
 
   useEffect(() => {
     // Fetch list of automations from the backend
@@ -28,7 +28,7 @@ function App() {
     };
 
     fetchAutomations();
-  }, []);
+  }, [API_BASE_URL]);
 
   const handleRunAutomation = async () => {
     if (!selectedAutomation || !prompt) {
