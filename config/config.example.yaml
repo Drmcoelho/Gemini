@@ -1,0 +1,39 @@
+# Gemini Configuration File
+# Copy this file to config.yaml and customize as needed
+
+app:
+  name: "Gemini"
+  version: "0.1.0"
+  debug: false
+
+# AI Service Configuration
+ai_services:
+  # Default service to use when none is specified
+  default_service: "gemini"
+  
+  # Google Gemini API Configuration
+  gemini:
+    enabled: true
+    api_key: ""  # Set this to your Gemini API key or use GEMINI_API_KEY env var
+    model: "gemini-pro"
+    temperature: 0.7
+    max_tokens: 1000
+    
+  # OpenAI API Configuration  
+  openai:
+    enabled: false
+    api_key: ""  # Set this to your OpenAI API key or use OPENAI_API_KEY env var
+    model: "gpt-3.5-turbo"
+    temperature: 0.7
+    max_tokens: 1000
+
+# Logging Configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Server Configuration (for future web interface)
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 1

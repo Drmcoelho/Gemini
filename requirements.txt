@@ -1,0 +1,18 @@
+# Core dependencies
+PyYAML>=6.0.1
+
+# Optional AI service dependencies
+# Uncomment as needed:
+
+# For Google Gemini API
+# google-generativeai>=0.3.0
+
+# For OpenAI API  
+# openai>=1.0.0
+
+# For development
+# pytest>=7.0.0
+# pytest-cov>=4.0.0
+# black>=23.0.0
+# flake8>=6.0.0
+# mypy>=1.0.0
