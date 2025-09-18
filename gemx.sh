@@ -257,18 +257,17 @@ others_menu() {
   fi
   while true; do
     echo
-    echo "$(color 35 '[OTHERS]') Catálogo:"
+    echo "$(color 35 '[OTHERS]') Catálogo v2:"
     echo "  1) Extensões (install)"
-    echo "  2) Plugins (toggle -> config.json)"
-    echo "  3) Interações (roda prompts/templates)"
-    echo "  4) Automations (run)"
+    echo "  2) Plugins (toggle)"
+    echo "  3) Ações (run)"
+    echo "  4) Recursos (view)"
     echo "  5) Voltar"
     printf "> "
     read -r op
     case "$op" in
       1)
         if ! need gh; then warn "GitHub CLI (gh) não instalado"; continue; fi
-        # Lista extensões e permite instalar
         jq -r '.extensions[]? | "\(.id)\t\(.description)"' "$GEMX_OTHERS" | nl -ba
         printf "Selecione # para instalar (Enter para voltar): "
         read -r n; [ -z "$n" ] && continue
@@ -276,46 +275,62 @@ others_menu() {
         [ -z "$id" ] || gh extension install "$id"
         ;;
       2)
-        # Plugins: chave -> toggle boolean em config.json
-        jq -r '.plugins[]? | "\(.key)\t\(.description)\t(default:\(.default))"' "$GEMX_OTHERS" | nl -ba
+        jq -r '.plugins[]? | "\(.key)\t\(.description)"' "$GEMX_OTHERS" | nl -ba
         printf "Selecione # para alternar plugin (Enter para voltar): "
         read -r n; [ -z "$n" ] && continue
         key="$(jq -r --argjson n "$n" '.plugins[$n-1].key' "$GEMX_OTHERS" 2>/dev/null)"
-        [ -z "$key" ] || set_cfg ".plugins.$key = ( .plugins.$key | not )"
+        [ -z "$key" ] && continue
+        set_cfg ".plugins.$key = ( .plugins.$key | not )"
         echo "Plugin '$key' agora: $(get_cfg ".plugins.$key")"
         ;;
       3)
-        # Interações: template/prompt predefinido
-        jq -r '.interactions[]? | "\(.id)\t\(.label)"' "$GEMX_OTHERS" | nl -ba
-        printf "Selecione # (Enter p/ voltar): "
+        jq -r '.actions[]? | "\(.label)\t| \(.type) | tags: \(.tags | join(\", \"))"' "$GEMX_OTHERS" | nl -ba
+        printf "Selecione # para executar (Enter p/ voltar): "
         read -r n; [ -z "$n" ] && continue
-        type="$(jq -r --argjson n "$n" '.interactions[$n-1].type' "$GEMX_OTHERS")"
+        
+        action_json="$(jq -r --argjson n "$n" '.actions[$n-1]' "$GEMX_OTHERS" 2>/dev/null)"
+        [ -z "$action_json" ] && { err "Ação inválida"; continue; }
+
+        type="$(echo "$action_json" | jq -r '.type')"
+        
         case "$type" in
           template)
-            key="$(jq -r --argjson n "$n" '.interactions[$n-1].template_key' "$GEMX_OTHERS")"
+            key="$(echo "$action_json" | jq -r '.template_key')"
             prompt="$(jq -r --arg k "$key" '.templates[$k]' "$GEMX_CFG")"
-            [ -z "$prompt" ] && { err "template '$key' não encontrado em config.json"; continue; }
+            [ -z "$prompt" ] && { err "Template '$key' não encontrado em config.json"; continue; }
             gem_gen "$prompt"
             ;;
           prompt)
-            p="$(jq -r --argjson n "$n" '.interactions[$n-1].prompt' "$GEMX_OTHERS")"
+            p="$(echo "$action_json" | jq -r '.prompt')"
+            # Handle dynamic content like git diff
+            if echo "$p" | grep -q '$(git diff --staged)'; then
+                staged_diff="$(git diff --staged)"
+                if [ -z "$staged_diff" ]; then
+                    warn "Nenhuma mudança no stage. O prompt pode ficar vazio."
+                fi
+                p="$(echo "$p" | sed "s|\\\$(git diff --staged)|$staged_diff|")"
+            fi
             gem_gen "$p"
             ;;
           automation)
-            f="$(jq -r --argjson n "$n" '.interactions[$n-1].file' "$GEMX_OTHERS")"
+            f="$(echo "$action_json" | jq -r '.file')"
             auto_run "$f"
             ;;
+          shell)
+            cmd="$(echo "$action_json" | jq -r '.command')"
+            info "Executando: $cmd"
+            eval "$cmd"
+            ;;
           *)
-            err "tipo desconhecido";;
+            err "Tipo de ação desconhecido: $type";;
         esac
         ;;
       4)
-        # Automations cadastradas no others.json
-        jq -r '.automations[]? | "\(.file)\t\(.description)"' "$GEMX_OTHERS" | nl -ba
-        printf "Selecione # para rodar (Enter p/ voltar): "
+        jq -r '.resources[]? | "\(.description)\t| \(.url)"' "$GEMX_OTHERS" | nl -ba
+        printf "Selecione # para ver a URL (Enter para voltar): "
         read -r n; [ -z "$n" ] && continue
-        f="$(jq -r --argjson n "$n" '.automations[$n-1].file' "$GEMX_OTHERS")"
-        auto_run "$f"
+        url="$(jq -r --argjson n "$n" '.resources[$n-1].url' "$GEMX_OTHERS" 2>/dev/null)"
+        [ -n "$url" ] && info "URL: $url"
         ;;
       5) return 0 ;;
     esac

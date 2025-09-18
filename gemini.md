@@ -1,169 +1,89 @@
-# Gemini Megapack — CLI + Wrapper (Login Google, sem API)
+# Gemini (`gemx.sh`)
 
-Este pacote entrega um wrapper **robusto** para o **Gemini CLI** (login via Google, **sem** API key), automations, catálogo `others.json`, templates e bootstrap de ambiente via `.env`/`.envrc`.
+`gemx.sh` é um wrapper para o CLI oficial do Gemini, projetado para melhorar a experiência do usuário com menus, automações, perfis e templates.
 
-> **Padrão rígido de modelo:** `gemini-2.5-pro`. O wrapper aplica `GEMX_FORCE_MODEL=gemini-2.5-pro`, que **sobrepõe qualquer escolha**.
+## Filosofia
 
----
+- **Sempre `gemini-2.5-pro`**: `gemx.sh` força o uso do modelo `gemini-2.5-pro` por padrão para garantir a melhor qualidade de resposta.
+- **Foco na Experiência do Usuário**: O script foi projetado para ser fácil de usar, com menus interativos e comandos intuitivos.
 
-## 1) Instalação rápida
+## Instalação e Configuração
 
-- **Binário oficial** (recomendado):  
-  `brew install gemini-cli` (macOS) ou `npm i -g @google/gemini-cli` (Node 20+).
+### Dependências
 
-- **Login Google (sem API)**:
-  ```bash
-  ./gemx.sh login
-  ./gemx.sh whoami
-  ```
+- **`jq`**: Para manipulação de JSON.
+- **`yq`**: Para manipulação de YAML.
+- **`gemini` ou `gmini`**: O CLI oficial do Gemini.
 
-- **Ativar ambiente do projeto** (usando **direnv**):
-  ```bash
-  brew install direnv
-  echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
-  cd /sua/pasta/do/projeto && direnv allow .
-  ```
+### Configuração
 
----
+- **`GEMINI_BIN`**: A variável de ambiente `GEMINI_BIN` pode ser usada para especificar o caminho para o binário do Gemini.
+- **`GEMX_HOME`**: A variável de ambiente `GEMX_HOME` pode ser usada para especificar o diretório de configuração do `gemx.sh`. O padrão é `~/.config/gemx`.
+- **`config.json`**: O arquivo de configuração principal, localizado em `$GEMX_HOME/config.json`.
 
-## 2) Estrutura do pacote
+## Uso
 
-```
-gemini_megapack/
-├─ gemx.sh               # wrapper principal (sempre gemini-2.5-pro; lê others.json)
-├─ .env                  # aliases e variáveis (GEMX_FORCE_MODEL=gemini-2.5-pro)
-├─ .envrc                # direnv: carrega .env e aliases ao entrar na pasta
-├─ others.json           # catálogo de extensões/plugins/interações/automations
-├─ automations/
-│  ├─ rx_brief.yaml
-│  ├─ sgarbossa_check.yaml
-│  └─ batch_from_file.sh
-├─ templates/
-│  └─ README.md
-└─ gemini.md             # esta documentação
-```
+### Comandos
 
----
+- **`menu`**: Abre o menu interativo.
+- **`chat`**: Inicia um loop de chat interativo.
+- **`gen`**: Gera uma resposta única para um prompt.
+- **`vision`**: Gera uma resposta para um prompt com uma imagem.
+- **`tpl`**: Gerencia os templates.
+- **`profile`**: Gerencia os perfis.
+- **`auto`**: Gerencia as automações.
+- **`others`**: Abre o menu `others.json`.
 
-## 3) Filosofia do wrapper
+## Configuração (`config.json`)
 
-- **Somente binário** (Google login). Sem chamadas HTTP.
-- **Compat macOS** (bash 3.2): sem dependências GNU não-portáteis.
-- **Modelo forçado**: `GEMX_FORCE_MODEL=gemini-2.5-pro` garante consistência.
-- **Pass-through**: qualquer subcomando/flag novo do CLI oficial funciona via:
-  ```bash
-  ./gemx.sh passthrough -- <args do gemini>
-  ```
-- **others.json**: catálogo editável pelo usuário: extensões, plugins (toggles), interações e automations.
+O arquivo `config.json` permite personalizar o comportamento do `gemx.sh`.
 
----
+- **`model`**: O modelo a ser usado.
+- **`stream`**: Se deve ou não usar o modo de streaming.
+- **`temperature`**: A temperatura a ser usada.
+- **`system`**: A mensagem de sistema a ser usada.
+- **`project`**: O ID do projeto do Google Cloud.
+- **`plugins`**: As configurações dos plugins.
+- **`profiles`**: Os perfis de configuração.
+- **`templates`**: Os templates de prompt.
 
-## 4) Comandos do wrapper
+## Perfis
 
-```bash
-./gemx.sh menu                      # TUI simples
-./gemx.sh setup                     # deps/binário
-./gemx.sh login|whoami|logout       # conta
-./gemx.sh models [set <MODEL>]      # lista/define modelo (pode ser sobreposto por FORCE_MODEL)
-./gemx.sh project set <ID>          # GOOGLE_CLOUD_PROJECT
-./gemx.sh chat                      # chat interativo
-./gemx.sh gen [flags]               # geração one-shot
-./gemx.sh vision --image PATH [...] # visão
-./gemx.sh tpl ls|show <KEY>         # templates do config.json
-./gemx.sh profile apply <NAME>      # aplica perfil do config.json
-./gemx.sh auto ls|new|show|run      # automations
-./gemx.sh others                    # menu do others.json
-./gemx.sh cache ls|clear            # cache (se suportado)
-./gemx.sh passthrough -- ...        # repassa args para o binário
-```
+Os perfis permitem alternar rapidamente entre diferentes configurações.
 
-### Flags comuns (gen/vision)
-- `--prompt "..."` | `--prompt-file F` | `--editor`  
-- `--model NAME` *(pode ser sobreposto pelo FORCE_MODEL)*  
-- `--temp N.N`  
-- `--system "mensagem"`  
-- `--image PATH` (em `vision` ou em `gen` como adicional)  
-- `--` *(tudo após vai direto ao binário, ex.: `--max-output-tokens 2048`)*
+- **`med`**: Perfil para assistência médica.
+- **`code`**: Perfil para programação.
+- **`draft`**: Perfil para rascunhos.
 
----
+## Templates
 
-## 5) others.json — catálogo
+Os templates permitem reutilizar prompts.
 
-Exemplo (incluído no pacote):
-```json
-{
-  "extensions": [
-    {"id": "dlvhdr/gh-dash", "description": "Dashboard TUI GitHub"},
-    {"id": "github/gh-copilot", "description": "Copilot via gh"}
-  ],
-  "plugins": [
-    {"key": "web_fetch", "default": false, "description": "Contexto web (se suportado)"},
-    {"key": "image_caption", "default": false, "description": "Caption de imagem"}
-  ],
-  "interactions": [
-    {"id": "template_rx", "type": "template", "label": "RX", "template_key": "rx"},
-    {"id": "prompt_brief", "type": "prompt", "label": "Brief", "prompt": "Resuma em 5 bullets."},
-    {"id": "auto_rx_brief", "type": "automation", "label": "Automation RX", "file": "automations/rx_brief.yaml"}
-  ],
-  "automations": [
-    {"file": "automations/rx_brief.yaml", "description": "Condutas RX"},
-    {"file": "automations/sgarbossa_check.yaml", "description": "Critérios Sgarbossa"},
-    {"file": "automations/batch_from_file.sh", "description": "Lote por arquivo"}
-  ]
-}
-```
+- **`rx`**: Formata condutas em tópicos.
+- **`brief`**: Resume em 5 bullets.
+- **`sgarbossa`**: Explica os critérios de Sgarbossa.
+- **`hda`**: Fluxo de suspeita de hemorragia digestiva alta.
 
-> Edite e acrescente seus itens. O menu `others` instala extensões (via `gh`), faz **toggle** dos plugins (gravando em `config.json`), executa interações (template/prompt/automation) e roda automations registradas.
+## Automações
 
----
+As automações permitem executar tarefas complexas com um único comando.
 
-## 6) Automations
+- **`rx_brief.yaml`**: Gera um resumo de prescrição médica.
+- **`sgarbossa_check.yaml`**: Explica os critérios de Sgarbossa.
+- **`batch_from_file.sh`**: Processa prompts em lote a partir de um arquivo.
 
-- **YAML/JSON**: precisam de `yq`/`jq` para parse (o wrapper usa o que existir).
-- **Scripts executáveis**: qualquer `.sh` com `chmod +x` pode ser rodado via `auto run`.
-- Convenção simples:
-  - `name`, `model` (será **forçado** para `gemini-2.5-pro` se `GEMX_FORCE_MODEL` estiver setado),
-  - `temperature`, `prompt`, `extra_args`.
+## `others.json`
 
----
+O arquivo `others.json` define um catálogo de extensões, plugins, interações e automações.
 
-## 7) Fluxos práticos
+- **`extensions`**: Extensões para o `gh` CLI.
+- **`plugins`**: Plugins para o `gemx.sh`.
+- **`interactions`**: Prompts e templates predefinidos.
+- **`automations`**: Automações.
 
-**A)** Abordagem rápida com aliases (ao entrar na pasta com direnv):
-```bash
-gx           # menu
-gxg --prompt "Explique IRA pré-renal vs ATN em 5 bullets."
-gxv --image rx.png --prompt "Descreva o achado principal."
-gxa run automations/rx_brief.yaml <<<'Pneumonia grave, choque séptico, norepinefrina.'
-```
+## Estendendo `gemx.sh`
 
-**B)** Pass-through completo para novas flags do CLI oficial:
-```bash
-./gemx.sh passthrough -- generate --model gemini-2.5-pro --temperature 0.3 --prompt "teste" --max-output-tokens 1024
-```
-
-**C)** Forçar ambiente sempre pronto:
-- `.env` define `GEMX_FORCE_MODEL="gemini-2.5-pro"` e aliases.
-- `.envrc` aplica ao entrar na pasta.
-
----
-
-## 8) Troubleshooting
-
-- **"gemini: command not found"** → instale o CLI (`brew install gemini-cli`) ou exporte `GEMINI_BIN=/caminho/do/bin`.
-- **Loop/erro de login** → `rm -rf ~/.gemini && ./gemx.sh login`.
-- **YAML parsing** → instale `yq` (`brew install yq`) para usar automations `.yaml`.
-- **Modelo trocado "sozinho"** → o wrapper está **forçando** `gemini-2.5-pro` (veja `GEMX_FORCE_MODEL`).
-
----
-
-## 9) Roadmap sugerido
-
-- Export JSON canônico; histórico em `.jsonl`.
-- Integração `fzf` para busca de histórico e automations.
-- Modo "dry-run": imprime o comando final antes de executar.
-- Coletores de contexto locais (PDF/MD/CSV) quando o CLI suportar ingestão.
-
----
-
-**Pronto.** O pacote entrega uma base sólida, prontíssima para expansão e uso diário.
+- **Adicionar novos templates**: Adicione uma nova entrada ao objeto `templates` no `config.json`.
+- **Adicionar novos perfis**: Adicione uma nova entrada ao objeto `profiles` no `config.json`.
+- **Adicionar novas automações**: Crie um novo arquivo YAML, JSON ou shell script no diretório `automations`.
+- **Adicionar novas entradas ao `others.json`**: Edite o arquivo `others.json` para adicionar novas extensões, plugins, interações ou automações.

@@ -1,58 +1,120 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "metadata": {
+    "version": "2.0.0",
+    "author": "Gemini",
+    "description": "Um catálogo robusto de extensões, ações e recursos para o gemx.sh.",
+    "updated_at": "2025-09-18T10:00:00Z"
+  },
   "extensions": [
     {
       "id": "dlvhdr/gh-dash",
-      "description": "Dashboard TUI para issues/PRs no GitHub"
+      "description": "Dashboard TUI para issues/PRs no GitHub.",
+      "tags": ["git", "tui", "productivity"]
     },
     {
       "id": "github/gh-copilot",
-      "description": "Copilot via gh (quando disponível)"
+      "description": "Copilot via gh (quando disponível).",
+      "tags": ["git", "ai", "code"]
+    },
+    {
+      "id": "mislav/gh-branch",
+      "description": "Comandos de branch melhorados (ex: gh branch -s).",
+      "tags": ["git", "productivity"]
+    },
+    {
+      "id": "seachicken/gh-poi",
+      "description": "Limpa branches locais que já foram mergeados.",
+      "tags": ["git", "maintenance"]
     }
   ],
   "plugins": [
     {
       "key": "web_fetch",
       "default": false,
-      "description": "Permitir buscas/contexto web (se suportado pelo CLI)."
+      "description": "Permitir buscas/contexto web (se suportado pelo CLI).",
+      "tags": ["core", "web"]
     },
     {
       "key": "image_caption",
       "default": false,
-      "description": "Caption de imagem (se suportado)."
+      "description": "Caption de imagem (se suportado).",
+      "tags": ["core", "vision"]
     }
   ],
-  "interactions": [
+  "actions": [
     {
-      "id": "template_rx",
+      "id": "action_template_rx",
       "type": "template",
-      "label": "Template: RX (condutas completas)",
-      "template_key": "rx"
+      "label": "Template: RX (condutas médicas)",
+      "template_key": "rx",
+      "tags": ["medical", "template"]
     },
     {
-      "id": "prompt_brief",
+      "id": "action_prompt_brief",
       "type": "prompt",
-      "label": "Brief 5 bullets",
-      "prompt": "Resuma o tópico a seguir em 5 bullets conclusivos."
+      "label": "Prompt: Resumo em 5 bullets",
+      "prompt": "Resuma o tópico a seguir em 5 bullets conclusivos.",
+      "tags": ["text", "summary"]
     },
     {
-      "id": "auto_rx_brief",
+      "id": "action_prompt_commit",
+      "type": "prompt",
+      "label": "Prompt: Gerar mensagem de commit",
+      "prompt": "Analise o diff a seguir e gere uma mensagem de commit concisa e informativa no padrão Conventional Commits. Opcionalmente, sugira um corpo explicando o 'porquê' da mudança.\n\n---\n\n$(git diff --staged)",
+      "tags": ["git", "code", "text"]
+    },
+    {
+      "id": "action_prompt_explain",
+      "type": "prompt",
+      "label": "Prompt: Explicar trecho de código",
+      "prompt": "Explique o seguinte trecho de código, focando em sua funcionalidade, lógica e contexto de uso:\n\n---\n\n",
+      "tags": ["code", "learning"]
+    },
+    {
+      "id": "action_auto_rx_brief",
       "type": "automation",
       "label": "Automation: rx_brief.yaml",
-      "file": "automations/rx_brief.yaml"
+      "file": "automations/rx_brief.yaml",
+      "tags": ["medical", "automation"]
+    },
+    {
+      "id": "action_auto_sgarbossa",
+      "type": "automation",
+      "label": "Automation: sgarbossa_check.yaml",
+      "file": "automations/sgarbossa_check.yaml",
+      "tags": ["medical", "automation"]
+    },
+    {
+      "id": "action_shell_git_status",
+      "type": "shell",
+      "label": "Shell: Git Status",
+      "command": "git status",
+      "tags": ["git", "shell"]
+    },
+    {
+      "id": "action_shell_list_automations",
+      "type": "shell",
+      "label": "Shell: Listar automações locais",
+      "command": "ls -1 automations/",
+      "tags": ["gemx", "shell"]
     }
   ],
-  "automations": [
+  "resources": [
     {
-      "file": "automations/rx_brief.yaml",
-      "description": "Gera condutas estruturadas com template RX."
+      "url": "https://github.com/google/gemini-cli",
+      "description": "Repositório oficial do Gemini CLI.",
+      "tags": ["documentation", "core"]
     },
     {
-      "file": "automations/sgarbossa_check.yaml",
-      "description": "Explica Sgarbossa com bullets práticos."
+      "url": "https://www.conventionalcommits.org/",
+      "description": "Especificação do Conventional Commits.",
+      "tags": ["git", "best-practice"]
     },
     {
-      "file": "automations/batch_from_file.sh",
-      "description": "Processa prompts em lote a partir de arquivo."
+      "url": "https://cli.github.com/manual/gh_extension_install",
+      "description": "Documentação de extensões do GitHub CLI.",
+      "tags": ["git", "documentation"]
     }
   ]
 }
