@@ -1,308 +1,147 @@
-# Gemini Megapack — CLI + Wrapper (Login Google, sem API)
+# Gemini Megapack v2: A Plataforma Definitiva para Inteligência Clínica
 
+## Visão Geral e Propósito Fundamental
 
-## 0) Instalação 1‑comando (recomendado)
+O **Gemini Megapack v2** transcende a definição de um simples conjunto de ferramentas; ele representa uma **plataforma de inteligência clínica especializada**, meticulosamente projetada para capacitar profissionais de saúde em ambientes de alta demanda, como unidades de emergência (UPA) e terapia intensiva (UTI). Construído sobre o poderoso CLI `gemx` (Gemini Command Line Interface), este Megapack integra o que há de mais avançado em inteligência artificial generativa para oferecer suporte decisivo, otimização de fluxos de trabalho e acesso instantâneo a informações médicas estruturadas.
 
-```bash
-# dentro da pasta do pacote
-chmod +x install.sh && ./install.sh
-# ou via Makefile
-make install
-make doctor
-```
+Nossa visão é transformar a maneira como a informação clínica é acessada, processada e aplicada, permitindo que médicos, enfermeiros e outros profissionais dediquem mais tempo ao cuidado direto do paciente e menos à burocracia ou à busca exaustiva por dados. O Gemini Megapack v2 é um passo audacioso em direção a uma medicina mais eficiente, precisa e humanizada.
 
-Este pacote entrega um wrapper **robusto** para o **Gemini CLI** (login via Google, **sem** API key), automations, catálogo `others.json`, templates e bootstrap de ambiente via `.env`/`.envrc`.
+## Arquitetura e Filosofia de Design
 
-> **Padrão rígido de modelo:** `gemini-2.5-pro`. O wrapper aplica `GEMX_FORCE_MODEL=gemini-2.5-pro`, que **sobrepõe qualquer escolha**.
+O Megapack v2 adota uma arquitetura modular e extensível, garantindo flexibilidade e adaptabilidade. Ele se baseia no princípio de que a inteligência artificial deve ser uma ferramenta de **aumento da capacidade humana**, não um substituto.
 
----
+*   **Core `gemx` CLI**: No coração do Megapack está o `gemx` (implementado em Python), que serve como o motor de comunicação com os modelos Gemini. O Megapack v2 empacota e configura este core para um desempenho otimizado no contexto clínico.
+*   **Modularidade por Domínio**: A estrutura de diretórios `v2`, `v3`, etc., permite a criação de "packs" especializados para diferentes domínios (médico, jurídico, engenharia, etc.), cada um com suas próprias automações, configurações e documentação, sem interferir nos demais.
+*   **Automação Inteligente**: Utiliza arquivos `.yaml` para definir automações complexas, que são essencialmente "receitas" para o `gemx` executar tarefas específicas, como gerar protocolos ou analisar cenários clínicos.
+*   **Observabilidade Integrada**: Ferramentas robustas de logging e reporting garantem transparência e a capacidade de analisar o uso e o desempenho do sistema ao longo do tempo.
+*   **Independência de Plataforma**: Embora otimizado para macOS e Ubuntu/Debian, o design busca a máxima compatibilidade, utilizando ferramentas de linha de comando amplamente disponíveis.
 
-## 1) Instalação rápida
+## Componentes Principais e Funcionalidades Detalhadas
 
-- **Binário oficial** (recomendado):  
-  `brew install gemini-cli` (macOS) ou `npm i -g @google/gemini-cli` (Node 20+).
+### 1. Scripts de Instalação e Gerenciamento
 
-- **Login Google (sem API)**:
-  ```bash
-  ./gemx.sh login
-  ./gemx.sh whoami
-  ```
+O Megapack v2 oferece uma experiência de configuração sem atritos, garantindo que o ambiente esteja pronto para uso com o mínimo de esforço.
 
-- **Ativar ambiente do projeto** (usando **direnv**):
-  ```bash
-  brew install direnv
-  echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
-  cd /sua/pasta/do/projeto && direnv allow .
-  ```
+*   **`install.sh` (Instalador Universal)**: Este script inteligente detecta o sistema operacional (macOS, Ubuntu/Debian, etc.) e o gerenciador de pacotes (`brew`, `apt`, `dnf`, `pacman`) para instalar automaticamente as dependências essenciais:
+    *   `jq`: Processamento de JSON em linha de comando.
+    *   `yq`: Processamento de YAML em linha de comando (essencial para as automações).
+    *   `direnv`: Gerenciamento de ambiente por diretório.
+    *   `gemini-cli`: O CLI oficial do Google Gemini, que o `gemx` encapsula.
+    *   **Uso**: `./install.sh`
+*   **`install-macos.sh` (Otimizado para macOS)**: Script focado em Homebrew para usuários de macOS, garantindo uma instalação suave e integração com o ecossistema Apple.
+    *   **Uso**: `./install-macos.sh`
+*   **`install-ubuntu.sh` (Otimizado para Ubuntu/Debian)**: Script para sistemas baseados em Debian/Ubuntu, utilizando `apt-get` e `snap` (se disponível) para gerenciar as dependências.
+    *   **Uso**: `./install-ubuntu.sh`
+*   **`Makefile`**: Um arquivo `Makefile` centralizado que simplifica a execução de tarefas comuns:
+    *   `make install`: Executa o script de instalação apropriado.
+    *   `make doctor`: Roda o diagnóstico do ambiente.
+    *   `make uninstall`: Inicia o processo de desinstalação.
+    *   `make clean`: Limpa arquivos temporários e caches.
+    *   **Uso**: `make <comando>`
+*   **`uninstall.sh` (Desinstalador Conservador)**: Remove os artefatos locais do Megapack, mas de forma conservadora, fornecendo instruções claras para a remoção manual de hooks do `direnv` ou do `gemini-cli` global, garantindo que nenhuma alteração indesejada persista.
+    *   **Uso**: `./uninstall.sh`
 
----
+### 2. Ferramentas de Diagnóstico
 
-## 2) Estrutura do pacote
+*   **`doctor.sh` (O Clínico Geral do Ambiente)**: Este script é sua primeira linha de defesa para garantir que o ambiente Gemini Megapack esteja saudável. Ele realiza uma série de verificações:
+    *   **Verificação de Ferramentas Essenciais**: Confirma a presença e a versão de `gemini`, `gmini`, `jq`, `yq`, `direnv`, `npm`, `node`.
+    *   **Status do `direnv`**: Verifica se o `direnv` está ativo para o diretório atual, crucial para o carregamento correto das variáveis de ambiente.
+    *   **Variáveis de Ambiente Críticas**: Checa a configuração de variáveis como `GEMX_FORCE_MODEL`.
+    *   **Teste de Conectividade Gemini**: Tenta executar `gemini whoami` para verificar a autenticação e a conectividade com a API do Gemini.
+    *   **Como Interpretar**: Fornece feedback claro (OK, MISS, WARN) para cada verificação, ajudando a identificar e resolver problemas rapidamente.
+    *   **Uso**: `./doctor.sh`
 
-```
-gemini_megapack/
-├─ gemx.sh               # wrapper principal (sempre gemini-2.5-pro; lê others.json)
-├─ .env                  # aliases e variáveis (GEMX_FORCE_MODEL=gemini-2.5-pro)
-├─ .envrc                # direnv: carrega .env e aliases ao entrar na pasta
-├─ others.json           # catálogo de extensões/plugins/interações/automations
-├─ automations/
-│  ├─ rx_brief.yaml
-│  ├─ sgarbossa_check.yaml
-│  └─ batch_from_file.sh
-├─ templates/
-│  └─ README.md
-└─ gemini.md             # esta documentação
-```
+### 3. Sistema de Automações Clínicas (O Coração do Megapack)
 
----
+O diretório `automations/` é onde a inteligência clínica do Megapack v2 realmente brilha. Cada arquivo `.yaml` representa uma automação específica, projetada para interagir com o modelo Gemini e gerar respostas estruturadas para cenários médicos.
 
-## 3) Filosofia do wrapper
+*   **Estrutura de uma Automação (`.yaml`)**:
+    *   `name`: Nome único da automação.
+    *   `model`: Modelo Gemini a ser utilizado (ex: `gemini-2.5-pro`).
+    *   `temperature`: Criatividade do modelo (0.0 a 1.0).
+    *   `prompt`: A instrução principal para o modelo, muitas vezes incorporando o "persona" (ex: "Você é um médico intensivista...") e o formato de saída desejado.
+    *   `extra_args`: Argumentos adicionais para o `gemx.sh gen`, como `--max-output-tokens`.
+*   **Exemplos de Automações Médicas Incluídas**:
+    *   **`sepse_bundle.yaml`**: Gera um bundle inicial de sepse para UPA, incluindo triagem, ABCDE, coleta, antibióticos empíricos (com campos obrigatórios para fármacos), ressuscitação volêmica, vasopressores e critérios de encaminhamento.
+        *   **Exemplo de Uso**: `./gemx.sh auto run automations/sepse_bundle.yaml --prompt "Paciente com 70 anos, febre, hipotensão, lactato 4.0."`
+    *   **`ira_aki.yaml`**: Abordagem de Injúria Renal Aguda (IRA/AKI) na UPA, cobrindo classificação KDIGO, avaliação hemodinâmica, ajustes de medicação nefrotóxica e manejo de distúrbios eletrolíticos.
+        *   **Exemplo de Uso**: `./gemx.sh auto run automations/ira_aki.yaml --prompt "Paciente com creatinina de 2.5, basal 0.8, oligúrico."`
+    *   **`hda_triage.yaml`**: Protocolo de Hemorragia Digestiva Alta (HDA) para UPA, com estratificação de risco (Glasgow-Blatchford, Rockall), farmacoterapia inicial e indicações de endoscopia.
+    *   **`ventilacao_mecanica.yaml`**: Protocolo prático de Ventilação Mecânica Inicial (UPA/ITU), abordando indicações, escolha do modo, parâmetros iniciais por fenótipo e sedoanalgesia.
+    *   **`broncoespasmo_seco.yaml`**: Manejo de broncoespasmo grave, incluindo avaliação, nebulização, corticoides, sulfato de magnésio e terbutalina.
+    *   **`rx_brief.yaml`**: Um template genérico para obter informações detalhadas sobre fármacos (Apresentação, Diluição, Posologia, etc.).
+    *   **`sgarbossa_check.yaml`**: Explica os critérios de Sgarbossa para diagnóstico de IAM em presença de BRE/MP.
+*   **`batch_from_file.sh`**: Um script utilitário para executar múltiplas automações a partir de uma lista de prompts em um arquivo, ideal para processamento em lote ou simulações.
+    *   **Uso**: `./automations/batch_from_file.sh <arquivo_de_prompts.txt>`
+*   **Como Criar Novas Automações**: A estrutura `.yaml` é intuitiva. Profissionais podem facilmente adaptar automações existentes ou criar novas para atender a necessidades específicas, definindo o prompt, o modelo e os argumentos.
 
-- **Somente binário** (Google login). Sem chamadas HTTP.
-- **Compat macOS** (bash 3.2): sem dependências GNU não-portáteis.
-- **Modelo forçado**: `GEMX_FORCE_MODEL=gemini-2.5-pro` garante consistência.
-- **Pass-through**: qualquer subcomando/flag novo do CLI oficial funciona via:
-  ```bash
-  ./gemx.sh passthrough -- <args do gemini>
-  ```
-- **others.json**: catálogo editável pelo usuário: extensões, plugins (toggles), interações e automations.
+### 4. Monitoramento e Análise de Uso
 
----
+A capacidade de auditar e analisar o uso do Gemini é crucial para otimização e conformidade.
 
-## 4) Comandos do wrapper
+*   **`gemx-logs.sh` (Navegador de Logs Interativo)**: Este script permite explorar os logs de auditoria (`audit-*.jsonl`) gerados pelo `gemx`.
+    *   **Funcionalidades**: Utiliza `fzf` (se disponível) para uma interface interativa de busca e visualização, permitindo filtrar por timestamp, evento, comando e modelo.
+    *   **Detalhes**: Exibe o conteúdo JSON completo de cada entrada de log, facilitando a depuração e a compreensão do que foi executado.
+    *   **Uso**: `./gemx-logs.sh`
+*   **`gemx-stats.sh` (Estatísticas Textuais Rápidas)**: Gera um resumo estatístico conciso dos logs de auditoria em formato de texto.
+    *   **Métricas**: Contagem por evento (start/finish/cancel), top comandos, modelos mais usados, duração média por comando e série temporal diária.
+    *   **Parâmetros**: Suporta `--since` e `--until` para filtrar por período, e `--top N` para limitar os resultados.
+    *   **Uso**: `./gemx-stats.sh --since 2025-09-01 --top 5`
+*   **`gemx-stats-html.py` (Dashboards Visuais Poderosos)**: Um script Python que transforma os logs de auditoria em um dashboard HTML interativo e visualmente rico.
+    *   **Geração de Gráficos**: Utiliza `matplotlib` para criar gráficos de barras e linhas que visualizam:
+        *   Eventos por tipo.
+        *   Top comandos executados.
+        *   Modelos Gemini utilizados.
+        *   Duração média das execuções por comando.
+        *   Série diária de finalizações de comandos.
+    *   **Saída HTML**: Gera um arquivo `index.html` e ativos de imagem (`.png`) em um diretório de saída configurável, pronto para ser visualizado em qualquer navegador.
+    *   **Uso**: `./gemx-stats-html.py --since 2025-09-01 --out-dir ./relatorio_clinico`
 
-```bash
-./gemx.sh menu                      # TUI simples
-./gemx.sh setup                     # deps/binário
-./gemx.sh login|whoami|logout       # conta
-./gemx.sh models [set <MODEL>]      # lista/define modelo (pode ser sobreposto por FORCE_MODEL)
-./gemx.sh project set <ID>          # GOOGLE_CLOUD_PROJECT
-./gemx.sh chat                      # chat interativo
-./gemx.sh gen [flags]               # geração one-shot
-./gemx.sh vision --image PATH [...] # visão
-./gemx.sh tpl ls|show <KEY>         # templates do config.json
-./gemx.sh profile apply <NAME>      # aplica perfil do config.json
-./gemx.sh auto ls|new|show|run      # automations
-./gemx.sh others                    # menu do others.json
-./gemx.sh cache ls|clear            # cache (se suportado)
-./gemx.sh passthrough -- ...        # repassa args para o binário
-```
+### 5. Templates de Prompt (Diretório `templates/`)
 
-### Flags comuns (gen/vision)
-- `--prompt "..."` | `--prompt-file F` | `--editor`  
-- `--model NAME` *(pode ser sobreposto pelo FORCE_MODEL)*  
-- `--temp N.N`  
-- `--system "mensagem"`  
-- `--image PATH` (em `vision` ou em `gen` como adicional)  
-- `--` *(tudo após vai direto ao binário, ex.: `--max-output-tokens 2048`)*
+Embora o `README.md` neste diretório seja conciso, ele aponta para a existência de templates de prompt que são fundamentais para a estruturação das respostas do Gemini. Estes templates são referenciados pelas automações e podem ser personalizados via `~/.config/gemx/config.json`.
 
----
+*   **`rx`**: Para condutas estruturadas de fármacos.
+*   **`brief`**: Para resumos concisos em bullets.
+*   **`sgarbossa`**: Para critérios específicos de diagnóstico.
+*   **`hda`**: Para fluxos de atendimento.
 
-## 5) others.json — catálogo
+## Integração com `direnv`
 
-Exemplo (incluído no pacote):
-```json
-{
-  "extensions": [
-    {"id": "dlvhdr/gh-dash", "description": "Dashboard TUI GitHub"},
-    {"id": "github/gh-copilot", "description": "Copilot via gh"}
-  ],
-  "plugins": [
-    {"key": "web_fetch", "default": false, "description": "Contexto web (se suportado)"},
-    {"key": "image_caption", "default": false, "description": "Caption de imagem"}
-  ],
-  "interactions": [
-    {"id": "template_rx", "type": "template", "label": "RX", "template_key": "rx"},
-    {"id": "prompt_brief", "type": "prompt", "label": "Brief", "prompt": "Resuma em 5 bullets."},
-    {"id": "auto_rx_brief", "type": "automation", "label": "Automation RX", "file": "automations/rx_brief.yaml"}
-  ],
-  "automations": [
-    {"file": "automations/rx_brief.yaml", "description": "Condutas RX"},
-    {"file": "automations/sgarbossa_check.yaml", "description": "Critérios Sgarbossa"},
-    {"file": "automations/batch_from_file.sh", "description": "Lote por arquivo"}
-  ]
-}
-```
+O `direnv` é uma ferramenta essencial para o Megapack v2. O arquivo `.envrc` no diretório raiz do Megapack garante que, ao entrar no diretório, as variáveis de ambiente e os aliases necessários sejam automaticamente carregados. Isso cria um ambiente de trabalho isolado e consistente, sem a necessidade de comandos `source` manuais.
 
-> Edite e acrescente seus itens. O menu `others` instala extensões (via `gh`), faz **toggle** dos plugins (gravando em `config.json`), executa interações (template/prompt/automation) e roda automations registradas.
+## Personalização e Extensibilidade
 
----
+O Gemini Megapack v2 é projetado para ser adaptável.
+*   **Automações Personalizadas**: Crie seus próprios arquivos `.yaml` no diretório `automations/` para desenvolver protocolos e fluxos de trabalho específicos para sua instituição ou especialidade.
+*   **Configuração do `gemx`**: Edite `~/.config/gemx/config.json` para ajustar modelos padrão, temperaturas e outros parâmetros globais do `gemx`.
+*   **Scripts Adicionais**: Integre seus próprios scripts shell ou Python para estender as funcionalidades do Megapack.
 
-## 6) Automations
+## Casos de Uso e Benefícios Clínicos
 
-- **YAML/JSON**: precisam de `yq`/`jq` para parse (o wrapper usa o que existir).
-- **Scripts executáveis**: qualquer `.sh` com `chmod +x` pode ser rodado via `auto run`.
-- Convenção simples:
-  - `name`, `model` (será **forçado** para `gemini-2.5-pro` se `GEMX_FORCE_MODEL` estiver setado),
-  - `temperature`, `prompt`, `extra_args`.
+O potencial do Gemini Megapack v2 no ambiente clínico é vasto:
 
----
+*   **Suporte à Decisão em Emergências**: Geração rápida de protocolos para condições críticas (sepse, IAM, AVC, IRA), garantindo que nenhum passo essencial seja esquecido.
+*   **Educação e Treinamento**: Ferramenta interativa para estudantes e residentes aprenderem e revisarem protocolos clínicos.
+*   **Otimização de Fluxos de Trabalho**: Automatização da criação de resumos de casos, planos de tratamento iniciais ou informações detalhadas sobre fármacos.
+*   **Padronização de Condutas**: Ajuda a garantir a adesão a diretrizes clínicas e a padronizar a qualidade do atendimento.
+*   **Pesquisa e Análise**: As ferramentas de logging e reporting podem ser usadas para analisar padrões de uso, identificar lacunas no conhecimento ou otimizar a interação com a IA.
 
-## 7) Fluxos práticos
+## Comunidade e Contribuição
 
-**A)** Abordagem rápida com aliases (ao entrar na pasta com direnv):
-```bash
-gx           # menu
-gxg --prompt "Explique IRA pré-renal vs ATN em 5 bullets."
-gxv --image rx.png --prompt "Descreva o achado principal."
-gxa run automations/rx_brief.yaml <<<'Pneumonia grave, choque séptico, norepinefrina.'
-```
+O Gemini Megapack v2 é um projeto vivo. Encorajamos a comunidade médica e de desenvolvedores a contribuir com novas automações, melhorias nos scripts existentes, documentação e feedback. Sua experiência é inestimável para moldar o futuro desta plataforma.
 
-**B)** Pass-through completo para novas flags do CLI oficial:
-```bash
-./gemx.sh passthrough -- generate --model gemini-2.5-pro --temperature 0.3 --prompt "teste" --max-output-tokens 1024
-```
+## Próximos Passos: Sua Jornada Começa Agora
 
-**C)** Forçar ambiente sempre pronto:
-- `.env` define `GEMX_FORCE_MODEL="gemini-2.5-pro"` e aliases.
-- `.envrc` aplica ao entrar na pasta.
+1.  **Clone o Repositório**: Obtenha a versão mais recente do Gemini Megapack v2.
+2.  **Instale as Dependências**: Execute o script de instalação apropriado para seu sistema operacional (`./install.sh`, `./install-macos.sh` ou `./install-ubuntu.sh`).
+3.  **Ative o `direnv`**: Se ainda não o fez, permita o `direnv` no diretório do Megapack (`direnv allow .`).
+4.  **Faça Login no Gemini CLI**: Autentique-se com sua conta Google usando `./gemx.sh login`.
+5.  **Explore e Experimente**: Comece a usar as automações existentes e sinta o poder da inteligência clínica.
+
+## Aviso Legal e Ético
+
+É crucial lembrar que o Gemini Megapack v2 é uma ferramenta de suporte e não substitui o julgamento clínico de um profissional de saúde qualificado. As informações geradas pela IA devem ser sempre revisadas, validadas e adaptadas ao contexto específico de cada paciente. A responsabilidade final pela decisão clínica e pelo cuidado do paciente recai sempre sobre o profissional.
 
 ---
-
-## 8) Troubleshooting
-
-- **"gemini: command not found"** → instale o CLI (`brew install gemini-cli`) ou exporte `GEMINI_BIN=/caminho/do/bin`.
-- **Loop/erro de login** → `rm -rf ~/.gemini && ./gemx.sh login`.
-- **YAML parsing** → instale `yq` (`brew install yq`) para usar automations `.yaml`.
-- **Modelo trocado "sozinho"** → o wrapper está **forçando** `gemini-2.5-pro` (veja `GEMX_FORCE_MODEL`).
-
----
-
-## 9) Roadmap sugerido
-
-- Export JSON canônico; histórico em `.jsonl`.
-- Integração `fzf` para busca de histórico e automations.
-- Modo "dry-run": imprime o comando final antes de executar.
-- Coletores de contexto locais (PDF/MD/CSV) quando o CLI suportar ingestão.
-
----
-
-**Pronto.** O pacote entrega uma base sólida, prontíssima para expansão e uso diário.
-
-
----
-## Instalação específica macOS (Homebrew-only)
-
-```bash
-chmod +x install-macos.sh && ./install-macos.sh
-```
-
----
-## Novas automations incluídas
-
-- `automations/sepse_bundle.yaml` — Bundle T0–6h, antibiótico, volume, vasopressor, farmacologia completa (9 campos).
-- `automations/hda_triage.yaml` — Triagem e estabilização da HDA; IBP, vasoativos varicosa, antibiótico; critérios de EDA/transferência.
-- `automations/ira_algoritmo.yaml` — Diferenciação Prerrenal vs ATN vs Pós-renal, condutas e ajustes de fármacos.
-- `automations/ventilacao_mecanica_inicial.yaml` — Parâmetros iniciais, SDRA, DPOC/asma, sedoanalgesia, metas e alarmes.
-
-
----
-
-## 10) Instalação específica macOS
-
-```bash
-chmod +x install-macos.sh && ./install-macos.sh
-./gemx.sh login
-make doctor
-```
-
-## 11) Automations médicas (novas)
-
-- `automations/sepse_bundle.yaml`
-- `automations/hda_triage.yaml`
-- `automations/ira_aki.yaml`
-- `automations/ventilacao_mecanica.yaml`
-- `automations/broncoespasmo_seco.yaml`
-
-Rode pelo menu **others** (interactions) ou diretamente:
-```bash
-./gemx.sh auto run automations/sepse_bundle.yaml
-```
-
-
-## 12) Instalação específica Ubuntu/Debian
-
-```bash
-chmod +x install-ubuntu.sh && ./install-ubuntu.sh
-./gemx.sh login
-make doctor
-```
-
-## 13) Modo DRY-RUN (auditoria dos comandos)
-
-- Global: `--dry-run` em qualquer comando do wrapper OU `export GEMX_DRYRUN=1` no ambiente.
-- Exemplo:
-```bash
-./gemx.sh --dry-run gen --prompt "teste" -- --max-output-tokens 512
-# Saída: [DRY-RUN] gemini generate --model gemini-2.5-pro ...
-```
-
-
-## 14) FZF Center (busca rápida)
-
-Se você tiver `fzf` instalado, habilite navegação turbo:
-```bash
-./gemx.sh fzf hist      # examina histórico com preview
-./gemx.sh fzf auto      # roda automations via picker
-./gemx.sh fzf others    # instala extensões, alterna plugins, dispara interações
-./gemx.sh fzf tpl       # escolhe template e executa
-./gemx.sh fzf models    # escolhe o modelo (será sobreposto por FORCE_MODEL)
-```
-No menu `gemx.sh menu` há a opção **"FZF Center"** reunindo tudo.
-
-> Dica: muitos itens do `others.json` foram ampliados (extensões/plugins/interações/integrations). Edite-o à vontade.
-
-
-
-## 15) Audit JSONL (opcional)
-
-Ative com `others.json → plugins → audit_log_jsonl` (toggle no menu **others**) — o wrapper gravará
-eventos `start|finish|dry-run|cancel` em `~/.config/gemx/logs/audit-YYYYMMDD.jsonl`:
-
-Exemplo de linha:
-```json
-{"ts":"2025-09-18T12:34:56Z","event":"start","wd":"/path/proj","bin":"gemini","model":"gemini-2.5-pro","argv":["generate","--model","gemini-2.5-pro","--prompt","..."]}
-```
-
-Compatível com `--dry-run` e com o toggle `confirm_before_run` (que registra `cancel` se você negar).
-
-
-## 16) Stats e Navegação de Logs
-
-- **Estatísticas agregadas**:
-```bash
-./gemx-stats.sh --since 2025-09-01 --top 15
-# ou JSON (mínimo): ./gemx-stats.sh --json
-```
-
-- **Navegador de Logs (FZF)**:
-```bash
-./gemx-logs.sh
-# Seleciona por ts/event/cmd; preview mostra a linha JSON com jq/bat.
-```
-
-
-## 17) Export CSV
-
-```bash
-# Exporta tabelas para ./outcsv/
-./gemx-stats.sh --since 2025-09-01 --csv-dir ./outcsv
-# Gera: events.csv, top_commands.csv, models.csv, durations.csv, daily.csv
-```
-
-## 18) "Grafana-lite" (HTML estático)
-
-Requer Python 3 + matplotlib:
-```bash
-python3 -m pip install matplotlib
-# gerar relatório:
-python3 ./gemx-stats-html.py --since 2025-09-01 --out-dir ./gemx_report
-# Abra o HTML (macOS):
-open ./gemx_report/index.html
-# Linux:
-xdg-open ./gemx_report/index.html
-```
-
-O relatório inclui:
-- gráficos (PNG) de eventos, top comandos, modelos, duração média e série diária;
-- tabelas com os mesmos dados.
+**Gemini Megapack v2** — *Inteligência Artificial a Serviço da Saúde.*

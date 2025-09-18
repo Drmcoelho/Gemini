@@ -2,6 +2,8 @@ import subprocess
 import typer
 from rich.console import Console
 from typing_extensions import Annotated
+import json
+import shlex
 
 from . import config
 from . import others
@@ -16,14 +18,33 @@ app.add_typer(profile_app)
 
 # --- Automation Constants ---
 META_PROMPT_TEMPLATE = """
-Como um especialista em automação do ecossistema Apple, sua tarefa é gerar um script para cumprir o objetivo do usuário.
-O objetivo do usuário é: '{user_prompt}'.
+Você é um especialista em automação de sistemas e ecossistemas Apple (macOS, iOS/iPadOS via Atalhos). Sua tarefa é gerar um plano de automação para o objetivo do usuário.
 
-Com base neste objetivo, gere um único, completo e executável AppleScript.
-- O script deve ser robusto e incluir tratamento de erros quando apropriado.
-- Não inclua nenhuma explicação, comentários ou formatação markdown.
-- Sua resposta inteira deve ser APENAS o código AppleScript bruto.
-- Exemplo para 'abrir notas': `tell application "Notes" to activate`
+O objetivo do usuário é: '{user_prompt}'
+
+Com base neste objetivo, gere uma lista de tarefas de automação. Cada tarefa deve ser um objeto JSON com as seguintes chaves:
+- `platform`: (string) O sistema operacional alvo. Use "macos" para AppleScript ou comandos de terminal macOS, "ios" para automações via Atalhos (Shortcuts).
+- `type`: (string) O tipo de código/comando. Use "applescript" para AppleScript, "shortcut_cli" para comandos do CLI de Atalhos (ex: `shortcuts run "Meu Atalho"`), "shell" para comandos de terminal macOS (ex: `open -a "Safari"`).
+- `code`: (string) O código ou comando executável para a tarefa.
+- `description`: (string) Uma breve descrição legível por humanos do que esta tarefa faz.
+
+Sua resposta deve ser APENAS um array JSON, sem formatação adicional, explicações ou comentários. Certifique-se de que o JSON seja válido.
+
+Exemplo de saída:
+[
+  {{
+    "platform": "macos",
+    "type": "applescript",
+    "code": "tell application \"Notes\" to activate",
+    "description": "Abre o aplicativo Notas no macOS."
+  }},
+  {{
+    "platform": "ios",
+    "type": "shortcut_cli",
+    "code": "shortcuts run \"Iniciar Modo Foco\"",
+    "description": "Inicia um modo de foco no iPhone via Atalhos."
+  }}
+]
 """
 
 # --- CLI Commands ---
@@ -75,7 +96,6 @@ def gen_auto(prompt: Annotated[str, typer.Option("--prompt", help="A descrição
     
     # 3. Construir o comando final para o usuário
     # Usamos shlex.quote para garantir que o prompt seja passado como uma única string segura para o shell
-    import shlex
     gemini_args = [
         gemini_bin,
         "generate",

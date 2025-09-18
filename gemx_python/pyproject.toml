@@ -6,7 +6,9 @@ authors = ["Seu Nome <voce@example.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.12"
+fastapi = "^0.111.0"
+uvicorn = {extras = ["standard"], version = "^0.30.1"}
 typer = {extras = ["all"], version = "^0.9.0"}
 rich = "^13.3.5"
 shellingham = "^1.5.0"

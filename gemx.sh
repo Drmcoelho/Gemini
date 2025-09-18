@@ -33,6 +33,24 @@ err()  { echo "$(color 31 "[ERR]")  $*" 1>&2; }
 need() { command -v "$1" >/dev/null 2>&1; }
 confirm() { printf "%s [y/N]: " "$1"; read -r a || return 1; a="$(lower "$a")"; [ "$a" = "y" ] || [ "$a" = "yes" ]; }
 
+# ---------- FZF helpers (opcional) ----------
+has_fzf() { command -v fzf >/dev/null 2>&1; }
+fzf_select() {
+  # $1: comando que lista entradas; $2: comando preview (opcional)
+  local list_cmd="$1" prev_cmd="$2" pick
+  if has_fzf; then
+    if [ -n "$prev_cmd" ]; then
+      pick=$(eval "$list_cmd" | fzf --no-mouse --height=90% --reverse --border \
+        --preview "$prev_cmd" --preview-window=right:60%)
+    else
+      pick=$(eval "$list_cmd" | fzf --no-mouse --height=90% --reverse --border)
+    fi
+  else
+    pick=$(eval "$list_cmd" | head -n1)
+  fi
+  printf '%s' "$pick"
+}
+
 # ---------- Binário (Google login; sem API) ----------
 # Ordem: GEMINI_BIN > gemini > gmini
 GEMX_BIN=""
@@ -120,7 +138,15 @@ EOT
 }
 
 # ---------- Core: chamar o binário ----------
-gem_exec() { ensure_bin || return 127; "$GEMX_BIN" "$@"; }
+gem_exec() {
+  if [ -n "${GEMX_DRYRUN:-}" ]; then
+    local bin_name="${GEMX_BIN:-gemini}"
+    echo "[DRY-RUN] $bin_name $*"
+    return 0
+  fi
+  ensure_bin || return 127
+  "$GEMX_BIN" "$@"
+}
 
 # One-shot generate (com sistema/temperatura/modelo/imagens)
 gem_gen() {
@@ -147,20 +173,43 @@ gem_gen() {
 
 # Chat interativo
 gem_chat_loop() {
-  ensure_bin || return 1
-  local model temp system
+  if [ -z "${GEMX_DRYRUN:-}" ]; then
+    ensure_bin || return 1
+  fi
+  local model temp system histf title
   model="$(get_cfg '.model')"; temp="$(get_cfg '.temperature')"; system="$(get_cfg '.system')"
-  # Aplica força do modelo
-  if [ -n "${GEMX_FORCE_MODEL:-}" ]; then model="$GEMX_FORCE_MODEL"; fi
-  info "Chat — model=$model temp=$temp"
-  [ -n "$system" ] && echo "$(color 90 "System: $system")"
+  [ -n "${GEMX_FORCE_MODEL:-}" ] && model="$GEMX_FORCE_MODEL"
+  title="Chat $(now_iso_utc)"
+  histf="${GEMX_HIST}/chat_$(ts_compact).md"
+  {
+    printf "# %s\n\n" "$title"
+    [ -n "$system" ] && printf "System: %s\n\n" "$system"
+  } > "$histf"
+  info "Chat — model=$model temp=$temp (hist: $histf)"; echo
+  echo "Dicas: :q sair | :help ajuda | :model M | :temp N | :sys (edita) | :save título | :edit abre editor"
   while true; do
-    printf "\nVocê> "
-    local p; read -r p || break
+    printf "Você> "
+    local p; IFS= read -r p || break
+    case "$p" in
+      :q|:quit) break ;;
+      :help)
+        echo ":model gemini-2.5-pro | :temp 0.2 | :sys (edita) | :save TÍTULO | :edit (abre editor)"; continue ;;
+      :edit)
+        p="$(read_from_editor)"; [ -z "$p" ] && continue ;;
+      :sys)
+        edit_system_msg; system="$(get_cfg '.system')"; continue ;;
+      :model*)
+        set -- $p; shift; if [ -n "$1" ]; then model="$1"; gem_set_model "$model"; else m="$(pick_model)"; [ -n "$m" ] && { model="$m"; gem_set_model "$model"; }; fi; echo "model=$model"; continue ;;
+      :temp*)
+        set -- $p; shift; [ -n "$1" ] && { temp="$1"; set_cfg ".temperature = $temp"; echo "temp=$temp"; }; continue ;;
+      :save*)
+        set -- $p; shift; title="${*:-$title}"; save_hist "$title" "$(cat "$histf")" >/dev/null; info "Sessão salva."; continue ;;
+    esac
     [ -z "$p" ] && continue
-    # Tenta 'chat'; fallback para 'generate' se não existir
-    gem_exec chat --model "$model" --temperature "$temp" ${system:+--system "$system"} --prompt "$p" 2>/dev/null \
-      || gem_exec generate --model "$model" --temperature "$temp" ${system:+--system "$system"} --prompt "$p"
+    printf "\n## Você\n%s\n\n" "$p" >> "$histf"
+    { gem_exec chat --model "$model" --temperature "$temp" ${system:+--system "$system"} --prompt "$p" 2>/dev/null \
+      || gem_exec generate --model "$model" --temperature "$temp" ${system:+--system "$system"} --prompt "$p"; } | tee -a "$histf"
+    printf "\n\n" >> "$histf"
   done
 }
 
@@ -175,6 +224,59 @@ gem_set_model() {
 gem_project_set() {
   local p="$1"; [ -n "$p" ] || { err "Informe o projeto"; return 1; }
   set_cfg ".project = \"$p\"" && export GOOGLE_CLOUD_PROJECT="$p" && info "Projeto ativo: $p"
+}
+
+# Captura lista de modelos em arquivo temporário para escolha
+known_models() {
+  local tmp; tmp="$(mktemp "${TMPDIR:-/tmp}/gemmdl.XXXXXX")" || return 1
+  # tenta do CLI apenas se não for dry-run e se houver binário
+  if [ -z "${GEMX_DRYRUN:-}" ] && resolve_bin; then
+    local out
+    out="$( ("$GEMX_BIN" model list 2>/dev/null || "$GEMX_BIN" models 2>/dev/null) | sed -n '1,200p' )"
+    if [ -n "$out" ]; then
+      printf "%s\n" "$out" > "$tmp"
+    fi
+  fi
+  if [ ! -s "$tmp" ]; then
+    # fallback: usa config atual, perfis, e alguns modelos comuns
+    local cur profile_mdls
+    cur="$(get_cfg '.model')"; [ -n "$cur" ] && printf "%s\n" "$cur" >> "$tmp"
+    profile_mdls="$(jq -r '.profiles | to_entries[]?.value.model' "$GEMX_CFG" 2>/dev/null | sed '/^$/d' | sort -u)"
+    [ -n "$profile_mdls" ] && printf "%s\n" "$profile_mdls" >> "$tmp"
+    printf "%s\n" "gemini-2.5-pro" "gemini-2.5-flash" >> "$tmp"
+    sort -u "$tmp" -o "$tmp"
+  fi
+  echo "$tmp"
+}
+pick_model() {
+  local tmp; tmp="$(known_models)" || return 1
+  local pick; pick="$(fzf_select "cat $tmp" "sed -n '1,200p' {}")"
+  rm -f "$tmp"
+  [ -z "$pick" ] && return 1
+  local m; m="$(printf "%s" "$pick" | awk '{print $1}')"
+  [ -n "$m" ] && echo "$m"
+}
+pick_project() {
+  local tmp; tmp="$(mktemp "${TMPDIR:-/tmp}/gemprj.XXXXXX")" || return 1
+  if need gcloud; then
+    gcloud projects list --format="table(projectId,name)" 2>/dev/null | sed '1d' > "$tmp" || true
+  fi
+  # fallback: usa valor atual e variável de ambiente
+  { get_cfg '.project' | sed '/^$/d'; printf "%s\n" "$GOOGLE_CLOUD_PROJECT"; } | sed '/^$/d' | sort -u >> "$tmp"
+  local pick; pick="$(fzf_select "cat $tmp" "sed -n '1,200p' {}")"
+  rm -f "$tmp"
+  [ -z "$pick" ] && return 1
+  local p; p="$(printf "%s" "$pick" | awk '{print $1}')"
+  [ -n "$p" ] && echo "$p"
+}
+edit_system_msg() {
+  local cur; cur="$(get_cfg '.system')"
+  local tmp; tmp="$(mktemp "${TMPDIR:-/tmp}/gemsys.XXXXXX")" || return 1
+  printf "%s\n" "$cur" > "$tmp"
+  ${EDITOR:-vi} "$tmp"
+  local new; new="$(cat "$tmp")"; rm -f "$tmp"
+  set_cfg ".system = \$new" --arg new "$new"
+  info "System message atualizado."
 }
 
 # ---------- Login/Conta ----------
@@ -369,12 +471,17 @@ menu() {
         esac
         ;;
       3)
-        echo "  a) listar modelos   b) set modelo   c) set projeto"
+        echo "  a) ver cfg   b) listar modelos   c) escolher modelo   d) set projeto   e) editar system   f) aplicar profile"
         printf "> "; read -r s
         case "$s" in
-          a) gem_models_list ;;
-          b) printf "Modelo> "; read -r m; [ -n "$m" ] && gem_set_model "$m" ;;
-          c) printf "Projeto> "; read -r p; [ -n "$p" ] && gem_project_set "$p" ;;
+          a) jq . "$GEMX_CFG" | sed -n '1,200p' ;;
+          b) gem_models_list ;;
+          c)
+            m="$(pick_model)"; if [ -z "$m" ]; then printf "Modelo> "; read -r m; fi; [ -n "$m" ] && gem_set_model "$m" ;;
+          d)
+            p="$(pick_project)"; if [ -z "$p" ]; then printf "Projeto> "; read -r p; fi; [ -n "$p" ] && gem_project_set "$p" ;;
+          e) edit_system_msg ;;
+          f) printf "Profile key> "; read -r k; [ -n "$k" ] && profile_apply "$k" ;;
         esac
         ;;
       4) gem_chat_loop ;;
@@ -465,6 +572,9 @@ Comandos principais:
   passthrough -- ...           Encaminha tudo ao binário
   help                         Ajuda
 
+Flags globais:
+  --dry-run                    Não executa; apenas imprime o comando repassado ao CLI
+
 Opções gen/vision comuns:
   --prompt "..." | --prompt-file F | --editor
   --model NAME
@@ -475,7 +585,8 @@ HLP
 }
 
 # ---------- Parser simples ----------
-cmd="$1" 2>/div/null || cmd="menu"
+DRY=""; for a in "$@"; do [ "$a" = "--dry-run" ] && DRY=1; done; [ -n "$DRY" ] && export GEMX_DRYRUN=1
+cmd="$1" 2>/dev/null || cmd="menu"
 
 init_cfg; check_deps || true
 
@@ -489,6 +600,9 @@ case "$cmd" in
   models)
     sub="$2" 2>/dev/null || sub=""
     case "$sub" in
+      pick)
+        m="$(pick_model)"; [ -n "$m" ] || { warn "Nenhum modelo selecionado"; exit 1; }
+        gem_set_model "$m" ;;
       set) m="$3"; [ -n "$m" ] || { err "Informe modelo"; exit 1; }; gem_set_model "$m" ;;
       *) gem_models_list ;;
     esac
